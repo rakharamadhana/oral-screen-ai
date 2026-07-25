@@ -1,0 +1,270 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>OralDetect - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#4ae176",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-error": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary": "#006b2d",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#464554",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-container": "#e5eeff",
+                        "primary-container": "#6063ee",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#002109",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed": "#001a42",
+                        "inverse-primary": "#c0c1ff",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-low": "#eff4ff",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-container": "#fefcff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#00873b",
+                        "primary": "#4648d4",
+                        "background": "#f8f9ff",
+                        "surface-tint": "#494bd6",
+                        "on-tertiary-container": "#f7fff3",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-primary-fixed": "#07006c",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#213145",
+                        "tertiary-fixed": "#6bff8f",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c7c4d7",
+                        "secondary": "#0058be",
+                        "outline": "#767586",
+                        "primary-fixed": "#e1e0ff",
+                        "on-background": "#0b1c30"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "base": "8px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "lg": "32px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "caption": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "display-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center w-full px-gutter h-16">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">OralDetect</h1>
+<div class="flex items-center gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95 text-on-surface-variant relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<main class="px-gutter pt-6 space-y-6">
+<!-- Welcome Section -->
+<section class="space-y-1">
+<h2 class="font-headline-md text-headline-md text-on-surface">Halo, Andi Setiawan! 👋</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Pastikan senyummu selalu sehat dengan pemeriksaan rutin hari ini.</p>
+</section>
+<!-- Quick Scan Card (Primary Call to Action) -->
+<section class="relative overflow-hidden rounded-xl bg-primary text-on-primary p-6 shadow-md active:opacity-95 transition-opacity">
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<div class="bg-primary-container/30 p-2 rounded-lg">
+<span class="material-symbols-outlined text-3xl" data-icon="camera_alt">camera_alt</span>
+</div>
+<h3 class="font-headline-md text-headline-md">Mulai Pemeriksaan Baru</h3>
+</div>
+<p class="font-body-md text-body-md mb-6 opacity-90 max-w-[240px]">Ambil foto rongga mulut Anda untuk deteksi dini risiko kanker mulut secara instan.</p>
+<button class="bg-surface-container-lowest text-primary px-6 py-3 rounded-full font-label-md text-label-md flex items-center gap-2 shadow-sm">
+                    Mulai Sekarang
+                    <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-primary-container rounded-full opacity-20 blur-2xl"></div>
+</section>
+<!-- Stats Row -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Total Scan</span>
+<span class="font-display-lg-mobile text-display-lg-mobile text-primary">14 Kali</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-col items-center text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-1">Konsistensi</span>
+<span class="font-display-lg-mobile text-display-lg-mobile text-tertiary">85%</span>
+</div>
+</section>
+<!-- Last Result Card -->
+<section class="bg-surface-container-lowest border border-outline-variant border-l-4 border-l-tertiary-container rounded-xl p-4 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-label-md text-label-md text-on-surface-variant">Hasil Terakhir</h4>
+<span class="text-caption text-on-surface-variant">12 Okt 2023</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-tertiary-fixed-dim/20 text-tertiary p-1.5 rounded-full">
+<span class="material-symbols-outlined text-xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="font-headline-md text-headline-md text-tertiary">Risiko Rendah</p>
+</div>
+</section>
+<!-- Upcoming Schedule -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl p-5">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="event">event</span>
+<h4 class="font-headline-md text-headline-md text-on-surface">Check-up Rutin</h4>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-primary-container text-on-primary-container w-14 h-14 rounded-lg flex flex-col items-center justify-center">
+<span class="text-[10px] font-bold uppercase">Nov</span>
+<span class="text-xl font-bold">24</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md font-semibold text-on-surface">Klinik Gigi Sehat</p>
+<p class="font-caption text-caption text-on-surface-variant">Pukul 10:00 - 11:00 WIB</p>
+</div>
+<button class="text-primary hover:bg-surface-container-high p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Education Feed -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-on-surface">Edukasi &amp; Tips</h4>
+<a class="font-label-md text-label-md text-primary" href="#">Lihat Semua</a>
+</div>
+<div class="space-y-4 pb-4">
+<!-- Education Item 1 -->
+<div class="flex gap-4 bg-surface-container-lowest border border-outline-variant p-3 rounded-xl overflow-hidden">
+<div class="w-24 h-24 shrink-0 rounded-lg bg-cover bg-center" data-alt="A macro close-up of a toothbrush with toothpaste and a vibrant, healthy oral hygiene setting. The lighting is bright and clinical with soft blue and white tones, emphasizing cleanliness and preventive care. The style is modern medical photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCNYkiggzqeiM9mpmwjce0LEj2Xc1p5waxjCCCj_qr6RMAyq_E3289ooP_l1Gs7fWhOQR7YdNo_fz17MTNY31E2e4_ikHThMlz8PQv4nj2njzOD1qSYCmsvqzMTDAQIzrlE9g3Y7o2_XKw0zGCSe7HLkWea_CCn8zcYmlhr0VAwBIyewpTVbRTdY0XPgTIGWzDIUkeKr1CFCruoRoAjfu_8LLrrta4_Se7xh6CILaD6ATDwBXabRPTBvpbAIfVT9n89WEXkUPzbVBE')"></div>
+<div class="flex flex-col justify-center">
+<span class="text-caption text-primary font-bold mb-1">Tips Kesehatan</span>
+<h5 class="font-body-md text-body-md font-semibold text-on-surface leading-tight">5 Langkah Sederhana Cegah Kanker Mulut Sejak Dini</h5>
+<p class="text-caption text-on-surface-variant mt-1">4 min baca</p>
+</div>
+</div>
+<!-- Education Item 2 -->
+<div class="flex gap-4 bg-surface-container-lowest border border-outline-variant p-3 rounded-xl overflow-hidden">
+<div class="w-24 h-24 shrink-0 rounded-lg bg-cover bg-center" data-alt="A beautiful flat lay of healthy foods like leafy greens, citrus fruits, and nuts on a clean white marble surface. The arrangement is artistic and emphasizes nutrition for oral health. Bright, natural daylight creates a fresh and clinical atmosphere." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWqeF_9lKjjsRTeM0WcWYG52KBh43kzgLL8z7LT5_C0n3j3V137cUT9cL25w1LXIgrg7vytV0qGwyzGfcd4EHfGpktaVUfpdXI1IWb0R_voMI4sHLz_-_tObwPgYGjXgprUy7oelQpse8oVnyMwRxtUdggjmHBuk5r5KwdRu1VFvV5wwLGPJgd-y-ri8U9FjPESDBIwx1Mc4bl3nMKtoULNXeY-OIG4Pbpl16KQdzrQ4R5VtmaTdbLlpu5QouStTmgRUaBCWq_SE0')"></div>
+<div class="flex flex-col justify-center">
+<span class="text-caption text-primary font-bold mb-1">Nutrisi</span>
+<h5 class="font-body-md text-body-md font-semibold text-on-surface leading-tight">Nutrisi Terbaik untuk Gusi dan Gigi yang Kuat</h5>
+<p class="text-caption text-on-surface-variant mt-1">6 min baca</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-2 py-3 bg-surface-container-lowest border-t border-outline-variant shadow-lg z-50">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md mt-0.5">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="camera_alt">camera_alt</span>
+<span class="font-label-md text-label-md mt-0.5">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md mt-0.5">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md mt-0.5">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions and subtle scroll effects
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-sm');
+                header.classList.remove('border-outline-variant');
+                header.classList.add('border-primary/10');
+            } else {
+                header.classList.remove('shadow-sm');
+                header.classList.add('border-outline-variant');
+                header.classList.remove('border-primary/10');
+            }
+        });
+
+        // Simple touch effect for cards
+        document.querySelectorAll('section > div').forEach(card => {
+            card.addEventListener('touchstart', () => card.classList.add('opacity-80'));
+            card.addEventListener('touchend', () => card.classList.remove('opacity-80'));
+        });
+    </script>
+</body></html>

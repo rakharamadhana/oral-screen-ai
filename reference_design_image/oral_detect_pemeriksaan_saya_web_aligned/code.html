@@ -1,0 +1,384 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Pemeriksaan Saya - OralDetect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .upload-card:hover .upload-overlay {
+            opacity: 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "surface-tint": "#494bd6",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "on-surface": "#0b1c30",
+                        "secondary": "#0058be",
+                        "surface-container-low": "#eff4ff",
+                        "tertiary-container": "#00873b",
+                        "on-tertiary-container": "#f7fff3",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-fixed": "#6bff8f",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-high": "#dce9ff",
+                        "primary-container": "#6063ee",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "primary": "#4648d4",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-surface-variant": "#464554",
+                        "tertiary": "#006b2d",
+                        "primary-fixed": "#e1e0ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "outline": "#767586",
+                        "inverse-surface": "#213145",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed": "#d8e2ff",
+                        "secondary-container": "#2170e4",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#07006c",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-fixed": "#001a42",
+                        "on-secondary-container": "#fefcff",
+                        "inverse-primary": "#c0c1ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#002109",
+                        "outline-variant": "#c7c4d7",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-primary-container": "#fffbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "lg": "32px",
+                        "sm": "12px",
+                        "xl": "48px",
+                        "md": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden">
+<!-- SideNavBar (Authority: Shared Components JSON) -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md px-sm space-y-base z-50">
+<div class="px-sm mb-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">OralDetect</h1>
+<p class="text-on-surface-variant font-label-md text-label-md">Healthcare Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Beranda -->
+<a class="flex items-center gap-3 px-md py-3 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Beranda</span>
+</a>
+<!-- Pemeriksaan Saya (ACTIVE) -->
+<a class="flex items-center gap-3 px-md py-3 bg-primary text-on-primary font-label-md text-label-md rounded-lg scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<span>Pemeriksaan Saya</span>
+</a>
+<!-- Edukasi -->
+<a class="flex items-center gap-3 px-md py-3 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">school</span>
+<span>Edukasi</span>
+</a>
+<!-- Riwayat -->
+<a class="flex items-center gap-3 px-md py-3 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Riwayat</span>
+</a>
+<!-- Profil -->
+<a class="flex items-center gap-3 px-md py-3 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Profil</span>
+</a>
+<!-- Bantuan -->
+<a class="flex items-center gap-3 px-md py-3 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Bantuan</span>
+</a>
+</nav>
+<div class="pt-md border-t border-outline-variant">
+<button class="flex w-full items-center gap-3 px-md py-3 text-error font-label-md text-label-md hover:bg-error-container/20 rounded-lg transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<span>Keluar</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-60 flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (Authority: Shared Components JSON) -->
+<header class="flex justify-between items-center w-full px-md h-16 bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">clinical_notes</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">Pemeriksaan Baru</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors">help</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors">notifications</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A clean, professional headshot of a user for a medical application profile. The user is smiling slightly against a soft, light-blue studio background. The lighting is bright and professional, adhering to a high-end corporate clinical aesthetic with soft shadows and sharp focus on the facial features." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDffxKlQR7ahHtFW1QjDUarq0ZkIsXzMAkfKHAVxQ9bT_vKtINDjk9DNxgDRhUcY0_uOGhXkRVNVAh9KhPvTsI9_3-TiG7T8f3yQ5tsnzbhWj6-ql6bEI20VR0dPhl__qmcxgOg9FIR-jrpKwpanLzJugky9gXNPFVeEZuMKRU759GVqVvGniSD0gOjqIoiFRYT4FAnYWqIxjqW8yEgIfUaRbdGUyZ-Mxu_vx5fHgp7O9wiEap76SHdaARVvwD7VagWHuqvFsSCEo">
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto bg-background p-lg">
+<div class="max-w-[1200px] mx-auto flex gap-lg">
+<!-- Center Section: Upload Zones -->
+<div class="flex-1 space-y-lg">
+<!-- Progress Stepper -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md">
+<div class="flex items-center justify-between relative px-xs">
+<div class="absolute top-1/2 left-0 w-full h-[2px] bg-outline-variant -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-0 h-[2px] bg-primary -translate-y-1/2 z-0" style="width: 60%;"></div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Data Diri</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Kuesioner</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Instruksi</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary ring-4 ring-primary-fixed flex items-center justify-center font-bold text-sm">4</div>
+<span class="font-label-md text-label-md text-primary font-bold">Ambil Foto</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface border border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-sm">5</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Konfirmasi</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface border border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-sm">6</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Selesai</span>
+</div>
+</div>
+</div>
+<!-- Instructions -->
+<div class="bg-primary-container/10 border-l-4 border-primary p-md rounded-r-lg">
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Unggah Foto Rongga Mulut</h3>
+<p class="text-on-surface-variant font-body-md text-body-md">Silakan unggah 4 foto utama dengan pencahayaan yang cukup. Pastikan area yang difoto terlihat jelas dan tidak buram (blur).</p>
+</div>
+</div>
+</div>
+<!-- Upload Bento Grid -->
+<div class="bento-grid">
+<!-- Tongue (Lidah) -->
+<div class="upload-card bg-surface border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group cursor-pointer transition-all hover:border-primary hover:shadow-lg">
+<div class="absolute inset-0 z-0 grayscale opacity-10 group-hover:opacity-20 transition-opacity">
+<div class="w-full h-full" data-alt="Close-up macro photography of a healthy human tongue showing texture and natural pink color. The lighting is clinical and bright, creating a medical assessment environment. The overall aesthetic is professional, clean, and minimalist, typical of a high-end healthcare application interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC47tatj0C5rQqReJcRk7hl6IjvLFTNt5IC6OM1E7Sxnmeh9luJ6QfyPmh3KwVuKz3l18w-xCkXNVJmCauLaOf9ewx6GKrweNOj_ct9ex87CViBST6sKQQrJweey_gZC1NTbliahUJ7g_EXI4jfjY6IwEeRmkA0DnWD58AeJlMlr8t8Gy2DNYASsYAqhvaPe9wABBLTNkPT2tqBR5Bql2O64huehfELrCVm7aGyjCaCGQLq4IyCuz7E9ueDB48R_a0sWk_G65fnFQg')"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+</div>
+<div class="text-center">
+<p class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Lidah</p>
+<p class="text-caption text-caption text-on-surface-variant mt-1">Klik untuk ambil/unggah</p>
+</div>
+</div>
+</div>
+<!-- Gums (Gusi) -->
+<div class="upload-card bg-surface border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group cursor-pointer transition-all hover:border-primary hover:shadow-lg">
+<div class="absolute inset-0 z-0 grayscale opacity-10 group-hover:opacity-20 transition-opacity">
+<div class="w-full h-full" data-alt="Macro medical photography of human gums and teeth focusing on oral health. The image is brightly lit with sterile, cool tones, emphasizing clarity and clinical precision. The background is minimal, making it suitable for a healthcare portal diagnostic screen for gum assessment." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAB7fOd27Da1QJydGr3Yd6uziJj8FFJ4n8SqXgODMjka0Sx22RRufxqWo3g145Eps6dDIFQRjAwy4uBpTojeEMcZwCBWrOvt7mlQN1DjMzF3WxymlXtUxcQh6setBAkMLv5qGqpM4OFVqcszZleRfGtie7O_GZN8gZvv4uNf1orGLC5rAhO2jSFumfSgEMQNJbcpohcy-EYu9AAe4x3GdDETvFMXGhXvWmhx-WcNOLYD2-7OqohguzqGDofa4_GyCe-ratmzKw5wlk')"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+</div>
+<div class="text-center">
+<p class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Gusi</p>
+<p class="text-caption text-caption text-on-surface-variant mt-1">Klik untuk ambil/unggah</p>
+</div>
+</div>
+</div>
+<!-- Inner Cheek (Pipi Dalam) -->
+<div class="upload-card bg-surface border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group cursor-pointer transition-all hover:border-primary hover:shadow-lg">
+<div class="absolute inset-0 z-0 grayscale opacity-10 group-hover:opacity-20 transition-opacity">
+<div class="w-full h-full" data-alt="Detailed medical illustration or macro photo of the interior lining of the human cheek (buccal mucosa). Professional clinical lighting ensures all details are visible for diagnostic purposes. The scene is clean, sterile, and uses a soft color palette typical of modern medical user interfaces." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-p1Kwpvir4FYx-skSWmiiR65V5k5cVnR4L489oE7bMVh8ZBSrra30XFiIoia6tzgW_Y2n7et9doW3I4wnMRRmSOjHn3zl5K2gcCyz7m9uzwN9BLxDt2D8uo20xvtob6nTermUhhI0B_37t8wl2m32TF7EAGirXMoaTBXzvjXEdsqeaQ-G-4fRb3FqjXExZxdgDBNOvSd76udkK_oCa_CwDpUw24bk5PIStEXB_ZRthg5Puq5Tcgqiyvb1L3cckDOnmJrvq8o7cKQ')"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+</div>
+<div class="text-center">
+<p class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Pipi Dalam</p>
+<p class="text-caption text-caption text-on-surface-variant mt-1">Klik untuk ambil/unggah</p>
+</div>
+</div>
+</div>
+<!-- Roof of Mouth (Langit-langit) -->
+<div class="upload-card bg-surface border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group cursor-pointer transition-all hover:border-primary hover:shadow-lg">
+<div class="absolute inset-0 z-0 grayscale opacity-10 group-hover:opacity-20 transition-opacity">
+<div class="w-full h-full" data-alt="High-resolution clinical photo of the roof of a human mouth (palate), showing clear surface details and natural coloration. Bright and even lighting without harsh shadows. The style is strictly medical, professional, and minimalist for use in a diagnostic healthcare application." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD2Mn4yzAwTXdhKYirzXZBEGsQ_OCTHs1bw3XU9dIpXQSfstBi2SybiQe8gganBlhvrLSDpJjkpkHweLU_vDSu-3MzfPc8vHxVQZV-Ig6LsZAN81IpNNEH6gyA9rHotSfC8tjzgtX7NR2-m-jMSuW_egNdtHREZ05w6OAllA7Y4f83yk8uJQZU0sgEzQHSbWpYlLDVnCto1le6jOGQ3NRF2Lr_NtGsVLHQ4dzUyoXJ-RdpA1OFWD63cK6A-ysbAXPEUgDKYsWUsvt4')"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+</div>
+<div class="text-center">
+<p class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Langit-langit</p>
+<p class="text-caption text-caption text-on-surface-variant mt-1">Klik untuk ambil/unggah</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center justify-between pt-md">
+<button class="px-xl py-3 rounded-full border border-primary text-primary font-bold hover:bg-surface-container-low transition-all">Kembali</button>
+<button class="px-xl py-3 rounded-full bg-primary text-on-primary font-bold opacity-50 cursor-not-allowed">Lanjutkan Ke Konfirmasi</button>
+</div>
+</div>
+<!-- Right Side Panel: Guide & Examples -->
+<aside class="w-80 space-y-md">
+<!-- Shooting Guide -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md shadow-sm">
+<h4 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">tips_and_updates</span>
+                            Panduan Pengambilan
+                        </h4>
+<ul class="space-y-3">
+<li class="flex gap-3 text-body-md text-on-surface-variant">
+<span class="w-5 h-5 flex-shrink-0 bg-primary-container rounded-full text-[10px] text-on-primary-container flex items-center justify-center font-bold">1</span>
+                                Cari ruangan dengan cahaya alami yang terang.
+                            </li>
+<li class="flex gap-3 text-body-md text-on-surface-variant">
+<span class="w-5 h-5 flex-shrink-0 bg-primary-container rounded-full text-[10px] text-on-primary-container flex items-center justify-center font-bold">2</span>
+                                Berdiri di depan cermin agar posisi kamera pas.
+                            </li>
+<li class="flex gap-3 text-body-md text-on-surface-variant">
+<span class="w-5 h-5 flex-shrink-0 bg-primary-container rounded-full text-[10px] text-on-primary-container flex items-center justify-center font-bold">3</span>
+                                Gunakan lampu flash jika di dalam ruangan minim cahaya.
+                            </li>
+<li class="flex gap-3 text-body-md text-on-surface-variant">
+<span class="w-5 h-5 flex-shrink-0 bg-primary-container rounded-full text-[10px] text-on-primary-container flex items-center justify-center font-bold">4</span>
+                                Pastikan fokus terkunci pada bagian mulut yang difoto.
+                            </li>
+</ul>
+</div>
+<!-- Photo Examples -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md shadow-sm">
+<h4 class="font-headline-md text-headline-md text-on-surface mb-sm">Contoh Hasil Foto</h4>
+<div class="space-y-md">
+<!-- Correct Example -->
+<div>
+<p class="text-caption text-caption text-tertiary-container font-bold flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-sm">check_circle</span> BENAR
+                                </p>
+<div class="w-full h-32 rounded-lg bg-surface-container overflow-hidden border-2 border-tertiary-fixed">
+<img class="w-full h-full object-cover" data-alt="A perfect example of a medical dental photograph. The image shows a well-lit, sharp, and focused view of the human tongue. The lighting is even and bright white, avoiding harsh shadows. The composition is centered, professional, and serves as a gold standard for oral diagnostic imagery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlPoFjvJoZHFJrkG1JtjBxvoU5n-ESxGHwG7o5K7qUBBagxgc_0c_0Q1JkBjw9dV6y914TOp1ujOHUbbJSwBFl7XbtLBtDGKA1hgrrV6FYqtxHyV9UHNhorIbMZhlebZ9qJ-Q7D2PqYYKH94RW672wu6meLaN3l3PK4dtccMi2KSBHgp9gZqeKB4JATTVwNu6Cdj84IzLt1ew5oqLH1SQlsN9zGOuVP1eWtikEWm60W1QrUzh5uR4y7jlN-z43eCrlARGvtXaQVJE">
+</div>
+<p class="text-caption text-caption text-on-surface-variant mt-2 italic">Terang, fokus, dan area terlihat jelas.</p>
+</div>
+<hr class="border-outline-variant">
+<!-- Incorrect Example -->
+<div>
+<p class="text-caption text-caption text-error font-bold flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-sm">cancel</span> SALAH
+                                </p>
+<div class="grid grid-cols-2 gap-2">
+<div class="h-20 rounded-lg bg-surface-container overflow-hidden border border-outline-variant relative">
+<img class="w-full h-full object-cover blur-[2px]" data-alt="An example of a bad medical photo that is extremely blurry and out of focus. The subject is unrecognizable as an oral cavity due to motion blur and poor lens focusing. The image serves as a 'how not to' guide for a healthcare app's user instructions." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAecqThQVaT7vPky9_mFCpOCKbZ8JOxeBbxNaFLVSe8-cIsglS4c_JrObpXC_ObPFIAB7pVLjL03rxZPpknIdD28rh4dfzF4ygB0z5lOHol1OzoidihZcDCiJTDJFHTMy_PJQpmkir97HaAfeV9QRkW--SrD37of6tJ1ptCkwp6nMPAtDNa3_hntnn2n_wdEL-ohjTN3zG8VxZ6oMRBZbUAEi90gi9bsGIE_zlmTHdlcZg5Ipd-m0vlxkQ757ByBscxAryKQ_qecgE">
+<div class="absolute inset-0 flex items-center justify-center bg-black/30">
+<span class="text-[10px] text-white font-bold bg-error px-1 rounded">BLUR</span>
+</div>
+</div>
+<div class="h-20 rounded-lg bg-surface-container overflow-hidden border border-outline-variant relative">
+<img class="w-full h-full object-cover brightness-50" data-alt="An example of a poorly lit medical photo. The image is very dark, grainy, and underexposed, making it impossible to see any details of the oral cavity. The lighting is completely inadequate for clinical diagnostic purposes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1RXByPqfXAW84_14D4xoonilbQyfpO2DV0bb0CN7ZtyuJU4u7VVygMyXTjJ6d4fcpNY7pKerU7-eWavGSPRWlzpZjipDGAZ_2UT-sNMMTrf41zpnUEVskRGbnXaAghOdPALhNO7W66ed9d9qIB1DifNfCDLRmRGzLBvWhuHtnqmqvcsqfLS8BCSBpy8xxg7wqTwVC7Mvw0OVEv0GPOJ0omV4Y_omvDfep4sGg1Jn-_nr00mlwtbhcKJ8T6tpb0vISNbVycw-aHjM">
+<div class="absolute inset-0 flex items-center justify-center bg-black/30">
+<span class="text-[10px] text-white font-bold bg-error px-1 rounded">GELAP</span>
+</div>
+</div>
+</div>
+<p class="text-caption text-caption text-on-surface-variant mt-2 italic">Hindari foto buram atau terlalu gelap.</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for upload cards
+        const uploadCards = document.querySelectorAll('.upload-card');
+        uploadCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const label = card.querySelector('.font-bold').innerText;
+                // Simulating file picker or camera activation
+                console.log(`Activating camera for: ${label}`);
+                card.classList.add('ring-2', 'ring-primary', 'bg-primary-container/5');
+            });
+        });
+
+        // Simple stepper logic visualization
+        // In a real app, clicking 'Lanjutkan' would check if all 4 photos are uploaded
+    </script>
+</body></html>

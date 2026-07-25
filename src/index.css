@@ -1,0 +1,79 @@
+/* Self-hosted Inter (offline-safe under COOP/COEP; no Google Fonts CDN). */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/inter/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #f8f9ff;
+    color: #0b1c30;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbars on horizontal chip rows while keeping scroll. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* OS-aware route transitions (see components/layout/PageTransition.tsx). */
+@keyframes pageIosEnter {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes pageAndroidEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes pageFadeEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.page-enter-ios {
+  animation: pageIosEnter 0.32s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.page-enter-android {
+  animation: pageAndroidEnter 0.24s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.page-enter-default {
+  animation: pageFadeEnter 0.2s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-ios,
+  .page-enter-android,
+  .page-enter-default {
+    animation: none;
+  }
+}

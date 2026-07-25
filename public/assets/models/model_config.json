@@ -1,0 +1,23 @@
+{
+  "classNames": [
+    "TIDAK PERLU RUJUKAN",
+    "PERLU RUJUKAN"
+  ],
+  "positiveClass": "PERLU RUJUKAN",
+  "decisionThreshold": 0.19726701080799103,
+  "imgSize": 384,
+  "mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "architecture": "resnest50d",
+  "testAuc": 0.9813333333333333,
+  "preprocessing": "resize_square",
+  "ttaAtTraining": true
+}

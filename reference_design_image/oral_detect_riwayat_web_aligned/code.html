@@ -1,0 +1,383 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Riwayat Pemeriksaan - OralDetect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .sidebar-active {
+            background-color: #4648d4;
+            color: #ffffff;
+            border-radius: 0.5rem;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d3e4fe;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#d3e4fe",
+                      "surface-tint": "#494bd6",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "on-surface": "#0b1c30",
+                      "secondary": "#0058be",
+                      "surface-container-low": "#eff4ff",
+                      "tertiary-container": "#00873b",
+                      "on-tertiary-container": "#f7fff3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "tertiary-fixed": "#6bff8f",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-high": "#dce9ff",
+                      "primary-container": "#6063ee",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "primary": "#4648d4",
+                      "on-secondary-fixed-variant": "#004395",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "on-surface-variant": "#464554",
+                      "tertiary": "#006b2d",
+                      "primary-fixed": "#e1e0ff",
+                      "on-error": "#ffffff",
+                      "background": "#f8f9ff",
+                      "outline": "#767586",
+                      "inverse-surface": "#213145",
+                      "surface-bright": "#f8f9ff",
+                      "on-primary-fixed-variant": "#2f2ebe",
+                      "secondary-fixed": "#d8e2ff",
+                      "secondary-container": "#2170e4",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-background": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#07006c",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-container": "#fefcff",
+                      "inverse-primary": "#c0c1ff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#002109",
+                      "outline-variant": "#c7c4d7",
+                      "on-secondary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "on-primary-container": "#fffbff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "lg": "32px",
+                      "sm": "12px",
+                      "xl": "48px",
+                      "md": "24px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "caption": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md px-sm space-y-base hidden md:flex z-50">
+<div class="px-md py-sm mb-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">OralDetect</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Healthcare Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">home</span>
+                Beranda
+            </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+                Pemeriksaan Saya
+            </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">school</span>
+                Edukasi
+            </a>
+<a class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+                Riwayat
+            </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person</span>
+                Profil
+            </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">help</span>
+                Bantuan
+            </a>
+</nav>
+<div class="pt-base border-t border-outline-variant">
+<a class="flex items-center gap-sm px-md py-sm text-error hover:bg-error-container/20 transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Keluar Akun
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-60 min-h-screen flex flex-col">
+<!-- TopNavBar Shell -->
+<header class="h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-md sticky top-0 z-40">
+<div class="flex items-center gap-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface hidden md:block">Riwayat Pemeriksaan</h2>
+<h2 class="font-headline-md text-headline-md text-primary md:hidden">OralDetect</h2>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-xs rounded-full transition-colors">help</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-xs rounded-full transition-colors relative">
+                    notifications
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</button>
+<div class="flex items-center gap-sm pl-sm border-l border-outline-variant">
+<img class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A professional close-up headshot of a middle-aged female dentist with a warm, empathetic smile. She wears white clinical attire and is set against a clean, softly lit medical office background with hints of blue and white medical equipment. The lighting is bright and high-key, conveying a sense of expertise, trust, and modern healthcare excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA35qX6ZWzMdBOjyUDTK015bvTDwzKU-tVSKwr0kGtkPVCoR5MUyXBFKsuy9DQwZQpsi910T-hMqS0s2V_upZ4RI3nawIbsBxFwt9-vDx8J9ZdWBqCvLsQk0R5K1gDXTNp0U0zg-uU6rlXjVe5fweRKYHpORT5VlLLLAMxqjI6TC7LRYYRooUfvwVJX38LymF5WllSbb4gbkBr9suV6S4xIvLyu8nb-wOB0VF_kE_ocK-0H1lMNs7fb46STAGpKmGp0arEyLBYVe1Q">
+<span class="text-body-md font-bold hidden lg:block">Dr. Sarah Johnson</span>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-md lg:p-xl space-y-lg">
+<!-- Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex items-center gap-md">
+<div class="bg-primary/10 p-sm rounded-lg">
+<span class="material-symbols-outlined text-primary scale-125">analytics</span>
+</div>
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Total Scans</p>
+<h3 class="text-display-lg font-display-lg text-primary">128</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex items-center gap-md border-l-4 border-l-tertiary-container">
+<div class="bg-tertiary-container/10 p-sm rounded-lg">
+<span class="material-symbols-outlined text-tertiary-container scale-125">check_circle</span>
+</div>
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">Low Risk Cases</p>
+<h3 class="text-display-lg font-display-lg text-tertiary-container">114</h3>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex items-center gap-md border-l-4 border-l-error">
+<div class="bg-error-container/20 p-sm rounded-lg">
+<span class="material-symbols-outlined text-error scale-125">warning</span>
+</div>
+<div>
+<p class="text-caption text-on-surface-variant uppercase tracking-wider">High Risk Cases</p>
+<h3 class="text-display-lg font-display-lg text-error">14</h3>
+</div>
+</div>
+</section>
+<!-- Table Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md border-b border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-md">
+<h3 class="font-headline-md text-headline-md">Riwayat Pemeriksaan Terbaru</h3>
+<div class="flex items-center gap-sm">
+<div class="relative flex-1 md:w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="w-full pl-xl pr-md py-xs border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Cari ID Pemeriksaan..." type="text">
+</div>
+<button class="flex items-center gap-xs px-sm py-xs border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors text-label-md font-label-md">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                            Filter
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tanggal &amp; Waktu</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">ID Pemeriksaan</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status Risiko</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Sampel Gambar</th>
+<th class="px-md py-sm font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-md">
+<div class="text-body-md font-bold">24 Okt 2023</div>
+<div class="text-caption text-on-surface-variant">14:32 WIB</div>
+</td>
+<td class="px-md py-md font-mono text-body-md text-primary">#ORD-9821-XP</td>
+<td class="px-md py-md">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-error-container/20 text-error text-caption font-bold border border-error/10">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-2"></span>
+                                        High Risk
+                                    </span>
+</td>
+<td class="px-md py-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A highly detailed clinical macro photograph of a 3D medical dental model showcasing a simulated oral lesion for diagnostic analysis. The image is captured with professional medical-grade macro lighting, presenting a sterile and precise aesthetic. The background is a soft, out-of-focus surgical blue, emphasizing the detail of the diagnostic sample. High-end clinical atmosphere with a focus on technological accuracy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlXsi5ZQPAdc8kSSdXkU68zcvTe-r-oCnXQ0A8Uollx8BHAeV-M5xSOawXLIelRUofWTYn8e4p1B1UeFXFJGyFtXSLRBvKwh5e1NplLuYbTfWAl1mHghkZYh_Jdfgfec09b7v2BaRBXBu3oTvbQi0WXAgYbV9DCQB7EFY-zbWff7MytcSaDMIZsGesTxBq06JrZC-Xclj7SfhSUBXguxGBJ1HUdWdKiRdl7Ye1P78tWEUWEPzerd_ZYVxMNxb6WtXvf1u5UAcsFcw">
+</div>
+</td>
+<td class="px-md py-md text-right">
+<button class="text-primary hover:bg-primary/10 px-sm py-xs rounded-lg transition-colors font-label-md text-label-md">Detail</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-md">
+<div class="text-body-md font-bold">22 Okt 2023</div>
+<div class="text-caption text-on-surface-variant">09:15 WIB</div>
+</td>
+<td class="px-md py-md font-mono text-body-md text-primary">#ORD-9755-LQ</td>
+<td class="px-md py-md">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-tertiary-container/10 text-tertiary-container text-caption font-bold border border-tertiary-container/10">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container mr-2"></span>
+                                        Low Risk
+                                    </span>
+</td>
+<td class="px-md py-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A clean, clinical macro view of a healthy oral cavity model used for dental software training. The lighting is exceptionally bright and even, highlighting healthy tissue textures in a professional healthcare setting. The color palette is composed of soft pinks, whites, and a clinical teal background. The image evokes a sense of preventive care and successful dental outcomes through modern technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkr6vD1WRcgh5GukMLJcPEGYZbayAQD0v_CBErBW7t3iAG5PDmGoAksWXh_DwDsw4WYEFEi4d-2etOUOU8yu2FXbiagR3PUfwJ2_qr1D3ukBzoRNBIuUGX1FKGWX0Khl8Ir9KgHODUC7aqfOgQhuLNld-dBTzPXJu4iIt_kKycsY59gT1kPtwX-eMs-L06eoq9D6T4FNZaebyAVeA4eorrZ34TbaAcH2fx3a49UldTktWTl0S3bUaDXO3ljVxhaP1_tvD2Cm-fIBA">
+</div>
+</td>
+<td class="px-md py-md text-right">
+<button class="text-primary hover:bg-primary/10 px-sm py-xs rounded-lg transition-colors font-label-md text-label-md">Detail</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-md">
+<div class="text-body-md font-bold">18 Okt 2023</div>
+<div class="text-caption text-on-surface-variant">16:45 WIB</div>
+</td>
+<td class="px-md py-md font-mono text-body-md text-primary">#ORD-9610-ZA</td>
+<td class="px-md py-md">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-tertiary-container/10 text-tertiary-container text-caption font-bold border border-tertiary-container/10">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container mr-2"></span>
+                                        Low Risk
+                                    </span>
+</td>
+<td class="px-md py-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A sophisticated digital visualization of an oral scan diagnostic screen. The image features a sharp, focused clinical close-up of dental anatomy with synthetic diagnostic markers overlaying the tissue. The atmosphere is highly technological, utilizing a palette of cool blues and crisp whites. Professional medical photography aesthetic with a focus on artificial intelligence in healthcare." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXCcANWaLzlzZHhD84zaeGlcR8R-F0SrHHDitpkX9W4E7dK9mqnaAbEe4TJcz1OVJKG_kCeSHoA7XKKwaW-Xw2X-QxTlbgAJDh5AI03eUpCqZZdtFgqSjdTgihICZSTu_3LZ0_I3dDh0qtxnH6hSbG5rsZwADpbcF1jQ2xado5W3rZ8lp9xxQwTv3d_cgZxApZABv9raSQWVhn8BOwUDAmbtQL6ac4uW5MrvMvHgm8PKRbMedIOLpaHRn0SDMEPo4jvc5kbExfP_c">
+</div>
+</td>
+<td class="px-md py-md text-right">
+<button class="text-primary hover:bg-primary/10 px-sm py-xs rounded-lg transition-colors font-label-md text-label-md">Detail</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-md">
+<div class="text-body-md font-bold">15 Okt 2023</div>
+<div class="text-caption text-on-surface-variant">11:20 WIB</div>
+</td>
+<td class="px-md py-md font-mono text-body-md text-primary">#ORD-9544-ML</td>
+<td class="px-md py-md">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-error-container/20 text-error text-caption font-bold border border-error/10">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-2"></span>
+                                        High Risk
+                                    </span>
+</td>
+<td class="px-md py-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Close-up clinical diagnostic photograph showing a simulated oral tissue sample with highlighting indicating areas of concern. The image is rendered in a high-contrast medical style, featuring professional studio lighting against a clean, white background. The aesthetic is strictly modern medical corporate, emphasizing scientific precision and diagnostic urgency through sharp focus and clear color coding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2LMjMnpHpVpb1Ko1nuV7z5LNsig7xS1uB0RSOf2PeAJDLsWXY3ZLanrHhEyje2vTRRgwbIyi23bgmG93nq9MM2fsIENWddEdcZhwtzilNgQ0-g4mlyx6YQde7mGFID0bs-a9pH_U-kvbjCDvoLZ2mv7X6VYl8mHyNXooOVvv3O7XMMsBqGlb90Y4TnZWqMDfMyNDa_1dEtO2QJ1YuXgZu1qCLeumqbvgqEHnOcuuTRxIynj0TYZenYgajrO0ibyHRWnrpkAiKIrI">
+</div>
+</td>
+<td class="px-md py-md text-right">
+<button class="text-primary hover:bg-primary/10 px-sm py-xs rounded-lg transition-colors font-label-md text-label-md">Detail</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-md bg-surface-container-low border-t border-outline-variant flex items-center justify-between">
+<p class="text-caption text-on-surface-variant">Menampilkan 1-10 dari 128 pemeriksaan</p>
+<div class="flex items-center gap-xs">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-outline hover:bg-surface-container-high disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-bold text-caption">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container-high text-caption">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container-high text-caption">3</button>
+<span class="px-xs text-on-surface-variant">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container-high text-caption">13</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-outline hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Info -->
+<footer class="mt-auto p-md text-center text-caption text-on-surface-variant opacity-60 border-t border-outline-variant/30">
+            © 2023 OralDetect Intelligence. Seluruh data terenkripsi secara medis sesuai standar keamanan HIPAA.
+        </footer>
+</main>
+<!-- Interactive Elements Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hover effect for table rows
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', () => {
+                    // Simulate navigation to detail page
+                    console.log('Navigating to inspection details...');
+                });
+            });
+
+            // Search micro-interaction
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('scale-[1.01]');
+                searchInput.parentElement.classList.add('shadow-md');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('scale-[1.01]');
+                searchInput.parentElement.classList.remove('shadow-md');
+            });
+        });
+    </script>
+</body></html>

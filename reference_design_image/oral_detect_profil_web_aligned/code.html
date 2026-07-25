@@ -1,0 +1,371 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#4ae176",
+            "inverse-on-surface": "#eaf1ff",
+            "surface": "#f8f9ff",
+            "tertiary-fixed": "#6bff8f",
+            "surface-bright": "#f8f9ff",
+            "on-tertiary-container": "#f7fff3",
+            "surface-container-low": "#eff4ff",
+            "on-background": "#0b1c30",
+            "primary-container": "#6063ee",
+            "outline": "#767586",
+            "on-secondary-container": "#fefcff",
+            "error-container": "#ffdad6",
+            "tertiary": "#006b2d",
+            "secondary": "#0058be",
+            "secondary-container": "#2170e4",
+            "secondary-fixed": "#d8e2ff",
+            "on-secondary-fixed": "#001a42",
+            "outline-variant": "#c7c4d7",
+            "on-surface-variant": "#464554",
+            "surface-tint": "#494bd6",
+            "surface-variant": "#d3e4fe",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed-variant": "#004395",
+            "on-tertiary-fixed": "#002109",
+            "on-error-container": "#93000a",
+            "primary-fixed": "#e1e0ff",
+            "on-primary-fixed-variant": "#2f2ebe",
+            "on-error": "#ffffff",
+            "inverse-primary": "#c0c1ff",
+            "secondary-fixed-dim": "#adc6ff",
+            "primary": "#4648d4",
+            "on-primary-container": "#fffbff",
+            "tertiary-container": "#00873b",
+            "primary-fixed-dim": "#c0c1ff",
+            "inverse-surface": "#213145",
+            "on-secondary": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "error": "#ba1a1a",
+            "on-surface": "#0b1c30",
+            "surface-container": "#e5eeff",
+            "background": "#f8f9ff",
+            "surface-container-highest": "#d3e4fe",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#005321",
+            "surface-container-high": "#dce9ff",
+            "on-primary-fixed": "#07006c",
+            "surface-dim": "#cbdbf5"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "xs": "4px",
+            "xl": "48px",
+            "lg": "32px",
+            "sm": "12px",
+            "gutter": "24px",
+            "base": "8px",
+            "md": "24px",
+            "container-max": "1280px"
+          },
+          "fontFamily": {
+            "display-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "caption": ["Inter"]
+          },
+          "fontSize": {
+            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+            "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+            "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+<!-- Main Shell Container -->
+<div class="flex min-h-screen">
+<!-- SideNavBar (Desktop Navigation) -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md px-sm space-y-base z-50">
+<div class="px-md mb-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">OralDetect</h1>
+<p class="text-on-surface-variant font-label-md text-[10px] uppercase tracking-wider">Healthcare Portal</p>
+</div>
+<nav class="flex-1 space-y-1 px-sm">
+<a class="flex items-center gap-base px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span class="font-label-md">Beranda</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px]">medical_services</span>
+<span class="font-label-md">Pemeriksaan Saya</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px]">school</span>
+<span class="font-label-md">Edukasi</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-label-md">Riwayat</span>
+</a>
+<!-- Active Tab: Profil -->
+<a class="flex items-center gap-base px-md py-sm bg-primary text-on-primary rounded-lg shadow-sm transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md">Profil</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="font-label-md">Bantuan</span>
+</a>
+</nav>
+<div class="pt-base border-t border-outline-variant">
+<button class="w-full flex items-center gap-base px-md py-sm text-error hover:bg-error-container/20 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="font-label-md">Keluar</span>
+</button>
+</div>
+</aside>
+<!-- Content Canvas -->
+<main class="flex-1 ml-60 flex flex-col">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant h-16 flex justify-between items-center px-xl">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Profil Pengguna</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs hover:bg-surface-container-low rounded-full text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="relative">
+<button class="p-xs hover:bg-surface-container-low rounded-full text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of Andi Setiawan, a clean-shaven Indonesian man in his 30s wearing a crisp white clinic coat. He has a warm, confident smile against a minimalist soft gray hospital interior background. The lighting is bright and high-key, conveying a sense of clinical professionalism and trust in a modern healthcare environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8ogTlO-sDY9InSaJS2VN4pb_dZtTbYMEQdKa7sh_IneMu47czXEEn-qYntsIV5KJRYuEFakQvUzthiTCaSfP4BA-qRujvF3x-O6565JTlybAEGAiENjtEuWid5g1DudjplRmnx4tzWMXfYUdMVOYzo5sCCdIy5Tl8ooThr-X-RnxuuBeniH3Uoh_1r1tMTTNGK4XHq4FO4GAPgr7x_aEeTfT0jNIl8L36cWYJjRzET5XWtU3P_2O0zQKmZ88ypeU-DAlzudwKTbk">
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-xl max-w-container-max mx-auto w-full">
+<!-- Profile Header Bento Style -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg mb-lg">
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col md:flex-row items-center gap-lg">
+<div class="relative">
+<div class="w-32 h-32 rounded-full border-4 border-surface-container shadow-sm overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close up profile photo of Andi Setiawan for a medical app, featuring high-quality photography, soft focus background, and professional studio lighting that emphasizes facial clarity and friendly demeanor. The overall aesthetic is clinical and trustworthy, aligned with modern digital health platform standards using a palette of soft whites and blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTZT4OCtfSXYA1OUT0oTWj8uu7v5bUHz8CoGCzZWZMO9kl-yQYvcd_N0ubBgB6jy_oR4A4NOpL_8Ngze6dFFPMZ-095B2Hn3ngS4DT79LiIQCWi8AQP_FoweUJ0SKcDrjniTEgATysi1uO82OLiuQ3Y8R6poNe9yZJMgybRbAI3VSstNHVIqZfSAC0T0WuUUD3xWreUzgqUMOp7x9E0jOdWswZ78W2PPLeAPzd4r29o-4vA2CG3pEOMGDR1NjYn8zWj0zbnZFNuCk">
+</div>
+<button class="absolute bottom-0 right-0 p-2 bg-primary text-on-primary rounded-full shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+</button>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h2 class="font-display-lg text-display-lg text-on-surface">Andi Setiawan</h2>
+<p class="text-on-surface-variant font-body-lg mb-base">andi.setiawan@email.com</p>
+<div class="flex flex-wrap justify-center md:justify-start gap-sm">
+<span class="bg-secondary-container text-on-secondary-container px-sm py-1 rounded-full text-[12px] font-bold uppercase tracking-tight">Member sejak Jan 2024</span>
+<span class="bg-tertiary-fixed-dim text-on-tertiary-fixed-variant px-sm py-1 rounded-full text-[12px] font-bold uppercase tracking-tight">Verified Profile</span>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-full font-label-md flex items-center gap-xs hover:shadow-md transition-shadow active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+                Ubah Profil
+              </button>
+</div>
+</div>
+</div>
+<!-- Settings Sections Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Personal Data Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="p-md border-b border-outline-variant bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+                Data Pribadi
+              </h3>
+</div>
+<div class="p-md space-y-md">
+<div class="flex justify-between items-center py-sm border-b border-outline-variant/30">
+<div>
+<p class="text-on-surface-variant font-label-md mb-xs">Nama Lengkap</p>
+<p class="font-body-lg text-on-surface">Andi Setiawan</p>
+</div>
+<button class="text-primary hover:bg-primary/5 p-2 rounded-full"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="flex justify-between items-center py-sm border-b border-outline-variant/30">
+<div>
+<p class="text-on-surface-variant font-label-md mb-xs">Tanggal Lahir</p>
+<p class="font-body-lg text-on-surface">15 Maret 1990</p>
+</div>
+<button class="text-primary hover:bg-primary/5 p-2 rounded-full"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="flex justify-between items-center py-sm">
+<div>
+<p class="text-on-surface-variant font-label-md mb-xs">Nomor Telepon</p>
+<p class="font-body-lg text-on-surface">+62 812 3456 7890</p>
+</div>
+<button class="text-primary hover:bg-primary/5 p-2 rounded-full"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- Security Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="p-md border-b border-outline-variant bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">security</span>
+                Keamanan &amp; Kata Sandi
+              </h3>
+</div>
+<div class="p-md space-y-md">
+<button class="w-full flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">lock</span>
+</div>
+<div class="text-left">
+<p class="font-body-lg text-on-surface font-semibold">Ubah Kata Sandi</p>
+<p class="text-on-surface-variant text-[12px]">Terakhir diubah 2 bulan lalu</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">fingerprint</span>
+</div>
+<div class="text-left">
+<p class="font-body-lg text-on-surface font-semibold">Biometrik Login</p>
+<p class="text-on-surface-variant text-[12px]">Aktif (Face ID / Sidik Jari)</p>
+</div>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</button>
+<button class="w-full flex items-center justify-between p-sm hover:bg-surface-container rounded-lg transition-colors group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div class="text-left">
+<p class="font-body-lg text-on-surface font-semibold">Otentikasi Dua Faktor</p>
+<p class="text-on-surface-variant text-[12px]">Tingkatkan keamanan akun Anda</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- App Notifications Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="p-md border-b border-outline-variant bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+                Notifikasi Aplikasi
+              </h3>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex items-center justify-between p-sm">
+<p class="font-body-lg text-on-surface">Notifikasi Pemeriksaan</p>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-sm">
+<p class="font-body-lg text-on-surface">Edukasi Kesehatan</p>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-sm">
+<p class="font-body-lg text-on-surface">Pembaruan Versi</p>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Account Settings & Support Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<div class="p-md border-b border-outline-variant bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">settings</span>
+                Akun &amp; Bantuan
+              </h3>
+</div>
+<div class="p-md space-y-xs">
+<a class="w-full flex items-center gap-md p-sm hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-on-surface-variant">language</span>
+<span class="flex-1 font-body-lg text-on-surface">Bahasa</span>
+<span class="text-on-surface-variant text-caption">Indonesia</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+<a class="w-full flex items-center gap-md p-sm hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+<span class="flex-1 font-body-lg text-on-surface">Pusat Bantuan</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+<a class="w-full flex items-center gap-md p-sm hover:bg-surface-container rounded-lg transition-colors text-error" href="#">
+<span class="material-symbols-outlined">delete_forever</span>
+<span class="flex-1 font-body-lg">Hapus Akun</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+</div>
+</section>
+</div>
+<!-- App Branding / Version info -->
+<div class="mt-xl text-center py-lg opacity-40">
+<p class="font-label-md text-on-surface-variant uppercase tracking-widest">OralDetect v2.4.0</p>
+<p class="text-caption text-on-surface-variant">© 2024 OralDetect. Dibuat dengan presisi medis.</p>
+</div>
+</div>
+</main>
+</div>
+<script>
+    // Simple micro-interaction for buttons
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('mousedown', () => {
+        btn.classList.add('scale-[0.98]');
+      });
+      btn.addEventListener('mouseup', () => {
+        btn.classList.remove('scale-[0.98]');
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.classList.remove('scale-[0.98]');
+      });
+    });
+
+    // Dark mode toggle simulation (if needed)
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+  </script>
+</body></html>

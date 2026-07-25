@@ -1,0 +1,7 @@
+{
+  "name": "oral-disease-detector-app",
+  "type": "react-vite",
+  "integrations": {
+    "capacitor": {}
+  }
+}

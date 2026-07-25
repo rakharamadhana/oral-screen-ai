@@ -1,0 +1,327 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>OralDetect - Beranda</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#4ae176",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface": "#f8f9ff",
+                    "tertiary-fixed": "#6bff8f",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-container": "#f7fff3",
+                    "surface-container-low": "#eff4ff",
+                    "on-background": "#0b1c30",
+                    "primary-container": "#6063ee",
+                    "outline": "#767586",
+                    "on-secondary-container": "#fefcff",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#006b2d",
+                    "secondary": "#0058be",
+                    "secondary-container": "#2170e4",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary-fixed": "#001a42",
+                    "outline-variant": "#c7c4d7",
+                    "on-surface-variant": "#464554",
+                    "surface-tint": "#494bd6",
+                    "surface-variant": "#d3e4fe",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#004395",
+                    "on-tertiary-fixed": "#002109",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e1e0ff",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#c0c1ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "primary": "#4648d4",
+                    "on-primary-container": "#fffbff",
+                    "tertiary-container": "#00873b",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "inverse-surface": "#213145",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-surface": "#0b1c30",
+                    "surface-container": "#e5eeff",
+                    "background": "#f8f9ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#005321",
+                    "surface-container-high": "#dce9ff",
+                    "on-primary-fixed": "#07006c",
+                    "surface-dim": "#cbdbf5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "xl": "48px",
+                    "lg": "32px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "md": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter", "sans-serif"],
+                    "label-md": ["Inter", "sans-serif"],
+                    "headline-md": ["Inter", "sans-serif"],
+                    "body-md": ["Inter", "sans-serif"],
+                    "body-lg": ["Inter", "sans-serif"],
+                    "caption": ["Inter", "sans-serif"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-active {
+            background-color: #4648d4;
+            color: #ffffff;
+            border-radius: 0.5rem;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-outline-variant flex flex-col py-md px-sm space-y-base z-50">
+<div class="px-md py-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">OralDetect</h1>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">Healthcare Portal</p>
+</div>
+<nav class="flex-1 space-y-base mt-lg px-xs">
+<a class="flex items-center gap-sm px-md py-sm sidebar-active transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Beranda</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-label-md text-label-md">Pemeriksaan Saya</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">Edukasi</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">Riwayat</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Bantuan</span>
+</a>
+</nav>
+<div class="px-md py-md border-t border-outline-variant">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional medical headshot of a person named Andi Setiawan, looking friendly and confident. The lighting is bright and clean with a minimalist healthcare office background, reflecting the clinical clarity aesthetic with soft blues and whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrv49E1Rn0cint2KDbiQpYy0kATCu--VQVwfJW9ysKpTlOJAMLvJlOtRc3iB43j0-z1ezDUbBofnEQ_63DmSd9y7AZn6AFI-0H19-x72mX41cO7RqyYr3ADLZ8eInUWoE7Ya7flnJztQUjj16287xvf2zBBC4KtN7GKH-kW1t1rXCd3w375P1apjABAfqeCk0JnNpCkqZzJtJGfHNwcTbo7L6o7Ifk1tBaVa-_SajvrMDPUmPDVDnHylJVRk3a_nYfCZV-u_10n4U">
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Andi Setiawan</p>
+<p class="text-[10px] text-on-surface-variant">ID: OD-92831</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top Bar -->
+<header class="ml-60 h-16 flex items-center justify-between px-xl bg-surface border-b border-outline-variant sticky top-0 z-40">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Beranda</h2>
+<div class="flex items-center gap-md">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-60 p-xl max-w-screen-container-max mx-auto">
+<!-- Welcome Header -->
+<section class="mb-lg">
+<h3 class="font-display-lg text-display-lg text-on-surface">Halo, Andi Setiawan!</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Pantau kesehatan mulut Anda secara rutin untuk pencegahan dini.</p>
+</section>
+<!-- Bento Grid Content -->
+<div class="bento-grid">
+<!-- CTA: New Checkup -->
+<div class="col-span-12 lg:col-span-8 bg-primary rounded-xl p-lg flex flex-col md:flex-row items-center justify-between overflow-hidden relative group">
+<div class="z-10 text-on-primary">
+<h4 class="font-headline-md text-headline-md mb-xs">Mulai Pemeriksaan Baru</h4>
+<p class="font-body-md text-body-md opacity-90 max-w-md mb-md">Lakukan pemindaian cepat dengan AI kami untuk mendeteksi potensi risiko kanker mulut dalam hitungan detik.</p>
+<button class="bg-surface text-primary font-label-md text-label-md px-lg py-md rounded-full hover:shadow-lg transition-all active:scale-95 flex items-center gap-sm">
+<span class="material-symbols-outlined">camera</span>
+                        Ambil Foto Sekarang
+                    </button>
+</div>
+<div class="hidden md:block absolute right-[-20px] top-[-20px] opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined !text-[180px]">medical_services</span>
+</div>
+</div>
+<!-- Health Stats -->
+<div class="col-span-12 lg:col-span-4 bg-white rounded-xl border border-outline-variant p-lg flex flex-col justify-between">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-md">Statistik Kesehatan</h4>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="p-base bg-primary-container rounded-lg text-on-primary-container">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<span class="font-body-md text-body-md">Total Scan</span>
+</div>
+<span class="font-headline-md text-headline-md">12 Kali</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="p-base bg-tertiary-container rounded-lg text-on-tertiary-container">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<span class="font-body-md text-body-md">Konsistensi</span>
+</div>
+<span class="font-headline-md text-headline-md">Sangat Baik</span>
+</div>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-outline-variant">
+<p class="text-caption text-on-surface-variant">Update terakhir: 2 hari yang lalu</p>
+</div>
+</div>
+<!-- Last Result Card -->
+<div class="col-span-12 lg:col-span-5 bg-white rounded-xl border-l-[6px] border-tertiary shadow-sm p-lg">
+<div class="flex items-start justify-between mb-md">
+<div>
+<h4 class="font-label-md text-label-md text-tertiary uppercase font-bold mb-xs">Hasil Terakhir</h4>
+<p class="font-headline-md text-headline-md text-on-surface">Risiko Rendah</p>
+</div>
+<span class="material-symbols-outlined text-tertiary !text-lg">check_circle</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg">Kondisi rongga mulut Anda terlihat sehat. Tidak ditemukan anomali yang mencurigakan pada pemindaian terakhir.</p>
+<a class="font-label-md text-label-md text-primary flex items-center gap-xs hover:underline" href="#">
+                    Lihat Detail Riwayat <span class="material-symbols-outlined !text-sm">arrow_forward</span>
+</a>
+</div>
+<!-- Upcoming Checkup -->
+<div class="col-span-12 lg:col-span-7 bg-white rounded-xl border border-outline-variant p-lg flex items-center gap-lg">
+<div class="w-20 h-20 bg-secondary-fixed text-on-secondary-fixed flex flex-col items-center justify-center rounded-xl">
+<span class="text-xs font-bold uppercase">Mei</span>
+<span class="text-2xl font-extrabold">24</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-md text-headline-md text-on-surface">Cek Rutin Mendatang</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-base">Pukul 09:00 WIB • Klinik Gigi Sehat</p>
+<div class="flex gap-sm">
+<button class="bg-secondary text-on-secondary font-label-md text-label-md px-md py-base rounded-full hover:bg-secondary-container transition-colors">
+                            Atur Pengingat
+                        </button>
+<button class="border border-outline text-on-surface font-label-md text-label-md px-md py-base rounded-full hover:bg-surface-container transition-colors">
+                            Reschedule
+                        </button>
+</div>
+</div>
+<div class="hidden sm:block">
+<span class="material-symbols-outlined text-outline-variant !text-[64px]">event</span>
+</div>
+</div>
+<!-- Education & Tips Section -->
+<div class="col-span-12 mt-lg">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-headline-md text-headline-md text-on-surface">Edukasi &amp; Tips Kesehatan</h4>
+<a class="text-primary font-label-md text-label-md hover:underline" href="#">Lihat Semua</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Article 1 -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+<div class="h-40 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A macro shot of a healthy set of white teeth and pink gums, representing good oral hygiene. The style is clean, clinical, and brightly lit, with a focus on fresh and healthy aesthetics in line with the healthcare portal's mission." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTWR0i_Mfn25iLonAJmEEZjmZesBttQ5GqqDPiHBmu77wN69QuatcnmUys9JQ6gVbBL5KXrhrplkZzAu-2z3z7K6lYohlEk_bICMSWhIwiT_XV6cMjg8CdY6GFx_YKbn7_KsNfCofL8Mjy5Ehp7PrUaca_NqDD6rYthBqtmbH3JvHu5Q7U34E6z-dU9AGYTOumNgJ1oLB-JpewauF6FtozrLY51ZvdebTNSdy9JB7uY4OxUgu1p8dTUvv28htNwoJUW7ZX9yQsRg0">
+</div>
+<div class="p-md">
+<span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] px-sm py-xs rounded font-bold uppercase">Tips Harian</span>
+<h5 class="font-label-md text-label-md text-on-surface mt-sm mb-xs">5 Cara Mudah Menjaga Kebersihan Mulut</h5>
+<p class="text-caption text-on-surface-variant line-clamp-2">Menjaga kebersihan mulut bukan hanya soal menyikat gigi. Simak tips lainnya di sini...</p>
+</div>
+</div>
+<!-- Article 2 -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+<div class="h-40 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A high-tech digital illustration showing a schematic of the human jaw with glowing blue nodes, representing AI-powered medical diagnostics for oral health. The background is a clean white and soft blue gradient, conveying advanced medical technology and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA__cyak7mHtk_K_q2hcUzRFl89WaX3IDumPUM9ya5l_56jfpUqf9Stur_uIrX1mKlgcqlXfm0u1WfLoi0g-J0_SIxyCejqLLrF3CdmZjzANvcIeUDa6qA0jZR1D7-VrQx23O52F_N81O-xaiqjXbQHIu-g_t-6z7HZYWweFUrY2_IwBlc78LRqHCPgcZcPtWcrpb6q6a9kAGs8qgXXx0BUOchhYWZYXYTScuhwfct3XiN5HxR3Z0F3RJaUZEJUY6rDe1lmc5EjSY">
+</div>
+<div class="p-md">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] px-sm py-xs rounded font-bold uppercase">Wawasan AI</span>
+<h5 class="font-label-md text-label-md text-on-surface mt-sm mb-xs">Memahami Cara Kerja Deteksi Dini OralDetect</h5>
+<p class="text-caption text-on-surface-variant line-clamp-2">Teknologi kecerdasan buatan kami dilatih dengan ribuan data klinis untuk akurasi terbaik.</p>
+</div>
+</div>
+<!-- Article 3 -->
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+<div class="h-40 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A diverse group of healthy fruits and vegetables like apples, carrots, and leafy greens arranged artistically on a white wooden table. The scene is bathed in natural sunlight, emphasizing nutrition as a key factor in oral and general health prevention." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB53LEmaDCVn-Tz08MdC9pHQM__EhV9Zw7PTGquCdfkiBVpa8fCMwp18FvdtOOdDv0GlvXGnqJRbkdf4LDZqZt79f-cBa6Ed91TeMjF3hiom9jN0XCG197rHje3a645yGp5kTdxT8_ICLUfj_Y_INGe0XV50pZA3LfBnqXXyDTtmivxejid_y54ZCmiYQtppD1ytZtwSZbVriv6NIsSocJkcJIvLM3ml7FP-4_9U0_RXYItH_BcsE3-eNzCdhRceNPw2KC28E0hP28">
+</div>
+<div class="p-md">
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] px-sm py-xs rounded font-bold uppercase">Nutrisi</span>
+<h5 class="font-label-md text-label-md text-on-surface mt-sm mb-xs">Makanan Terbaik untuk Memperkuat Gusi</h5>
+<p class="text-caption text-on-surface-variant line-clamp-2">Apa yang Anda makan sangat berpengaruh pada kesehatan mulut. Temukan daftar makanannya.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple hover effects and interaction simulations
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('opacity-80');
+            });
+            el.addEventListener('mouseup', () => {
+                el.classList.remove('opacity-80');
+            });
+        });
+    </script>
+</body></html>
