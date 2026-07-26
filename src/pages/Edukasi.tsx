@@ -130,7 +130,7 @@ export function Edukasi() {
       </Card>
 
       <p className="text-caption text-on-surface-variant text-center pt-sm">
-        © 2024 Oral Screen AI. Informasi medis hanya untuk tujuan edukasi dan bukan pengganti saran
+        © 2026 Oral Screen AI. Informasi medis hanya untuk tujuan edukasi dan bukan pengganti saran
         dokter profesional.
       </p>
     </div>

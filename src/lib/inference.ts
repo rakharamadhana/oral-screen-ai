@@ -45,6 +45,12 @@ const MODELS_BASE = 'assets/models';
  */
 export async function loadModel(): Promise<LoadedModel> {
   ort.env.wasm.wasmPaths = '/assets/';
+  // Multi-threaded WASM (COOP/COEP are set, so SharedArrayBuffer is available).
+  // Capped at 4 — more threads have diminishing returns for a single small image.
+  ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 2);
+  // Run the session in a Web Worker so a forward pass never blocks the main
+  // thread — this keeps the live-detection video loop and UI smooth.
+  ort.env.wasm.proxy = true;
 
   const config: ModelConfig = await fetch(`${MODELS_BASE}/model_config.json`).then((r) => {
     if (!r.ok) throw new Error(`model_config.json missing (HTTP ${r.status})`);
@@ -152,6 +158,18 @@ export function getJetColor(v: number): [number, number, number] {
  * Runs a full forward pass on any canvas-drawable source (image OR video frame).
  * Full square resize to config.imgSize (no centre crop, matching training).
  */
+let scratchCanvas: HTMLCanvasElement | null = null;
+
+/** A reused SxS canvas for resizing frames — avoids per-frame allocation during live detection. */
+function getScratchCanvas(size: number): HTMLCanvasElement {
+  if (!scratchCanvas) scratchCanvas = document.createElement('canvas');
+  if (scratchCanvas.width !== size) {
+    scratchCanvas.width = size;
+    scratchCanvas.height = size;
+  }
+  return scratchCanvas;
+}
+
 export async function runInferenceOnSource(
   model: LoadedModel,
   source: CanvasImageSource,
@@ -159,9 +177,7 @@ export async function runInferenceOnSource(
   const { session, config, fcWeights } = model;
   const S = config.imgSize;
 
-  const canvas = document.createElement('canvas');
-  canvas.width = S;
-  canvas.height = S;
+  const canvas = getScratchCanvas(S);
   const ctx = canvas.getContext('2d')!;
   ctx.drawImage(source, 0, 0, S, S);
   const pixels = ctx.getImageData(0, 0, S, S).data;

@@ -5,6 +5,8 @@ import { Button } from '../ui/Button';
 interface CameraCaptureProps {
   photo: string | null;
   setPhoto: (url: string | null) => void;
+  /** Called right after a fresh still is captured (used to auto-advance). */
+  onCommit?: () => void;
 }
 
 /**
@@ -13,7 +15,7 @@ interface CameraCaptureProps {
  * `capture` attribute which desktop ignores). This is a still capture — the
  * continuous-inference mode is LiveInference.
  */
-export function CameraCapture({ photo, setPhoto }: CameraCaptureProps) {
+export function CameraCapture({ photo, setPhoto, onCommit }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [ready, setReady] = useState(false);
@@ -63,6 +65,7 @@ export function CameraCapture({ photo, setPhoto }: CameraCaptureProps) {
     setPhoto(c.toDataURL('image/jpeg', 0.9));
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    onCommit?.();
   };
 
   if (error) {

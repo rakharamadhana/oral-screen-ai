@@ -340,9 +340,9 @@ function AmbilFotoStep({
         ) : (
           <>
             {mode === 'camera' ? (
-              <CameraCapture photo={photo} setPhoto={setPhoto} />
+              <CameraCapture photo={photo} setPhoto={setPhoto} onCommit={onNext} />
             ) : (
-              <SinglePhotoUpload photo={photo} setPhoto={setPhoto} />
+              <SinglePhotoUpload photo={photo} setPhoto={setPhoto} onCommit={onNext} />
             )}
             <FooterNav
               onBack={onBack}
@@ -427,9 +427,12 @@ function ContohHasilFoto() {
 function SinglePhotoUpload({
   photo,
   setPhoto,
+  onCommit,
 }: {
   photo: string | null;
   setPhoto: (url: string | null) => void;
+  /** Called right after a fresh file is chosen (used to auto-advance). */
+  onCommit?: () => void;
 }) {
   const { t } = useLang();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -459,7 +462,10 @@ function SinglePhotoUpload({
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) setPhoto(URL.createObjectURL(file));
+          if (file) {
+            setPhoto(URL.createObjectURL(file));
+            onCommit?.();
+          }
         }}
       />
     </button>
