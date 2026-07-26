@@ -5,7 +5,9 @@
 import type { Article, Checkup, Profile, ScanRecord } from './types';
 
 export const SEED_PROFILE: Profile = {
-  id: 'demo-user',
+  // Must match the seeded profiles row uuid (supabase/migrations/0003) so
+  // saveProfile() upserts target a valid uuid PK and actually persist.
+  id: '00000000-0000-0000-0000-000000000001',
   fullName: 'Andi Setiawan',
   email: 'andi.setiawan@email.com',
   medicalId: 'OD-92831',
@@ -15,6 +17,7 @@ export const SEED_PROFILE: Profile = {
   avatarUrl: null,
   verified: true,
   notifications: { exams: true, education: true, updates: false },
+  riskFactors: [],
 };
 
 export const UPCOMING_CHECKUP: Checkup = {

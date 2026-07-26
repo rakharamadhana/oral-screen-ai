@@ -1,13 +1,70 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, Share2 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ArticleCard } from '../components/ui/ArticleCard';
-import { ARTICLES, getArticleById, DEFAULT_ARTICLE_BODY } from '../lib/mockData';
+import { Skeleton } from '../components/ui/Skeleton';
+import { getArticle, listArticles } from '../lib/repository';
+import { DEFAULT_ARTICLE_BODY } from '../lib/mockData';
+import type { Article } from '../lib/types';
 
 export function ArticleDetail() {
   const { id } = useParams();
-  const article = id ? getArticleById(id) : undefined;
+  const [article, setArticle] = useState<Article | undefined>();
+  const [related, setRelated] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    Promise.all([getArticle(id), listArticles()])
+      .then(([found, all]) => {
+        if (cancelled) return;
+        setArticle(found);
+        setRelated(
+          found
+            ? all.filter((a) => a.id !== found.id && a.category === found.category).slice(0, 3)
+            : [],
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setArticle(undefined);
+          setRelated([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-md">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-6 w-24 rounded" />
+        <Skeleton className="h-10 w-11/12" />
+        <Skeleton className="h-10 w-2/3" />
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-56 md:h-72 rounded-xl" />
+        <div className="space-y-sm pt-sm">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-11/12" />
+        </div>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -23,7 +80,6 @@ export function ArticleDetail() {
   }
 
   const body = article.body ?? DEFAULT_ARTICLE_BODY;
-  const related = ARTICLES.filter((a) => a.id !== article.id && a.category === article.category).slice(0, 3);
 
   return (
     <div className="max-w-3xl mx-auto">

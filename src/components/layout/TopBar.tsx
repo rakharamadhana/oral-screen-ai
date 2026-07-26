@@ -1,12 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HelpCircle, Bell } from 'lucide-react';
 import { ROUTE_TITLES } from './navItems';
+import { useLang } from '../../lib/i18n';
 
 /** Desktop sticky top bar with the current page title (hidden below md). */
 export function TopBar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const title = ROUTE_TITLES[pathname] ?? 'Oral Screen AI';
+  const { lang } = useLang();
+  const title = ROUTE_TITLES[pathname]?.[lang === 'en' ? 1 : 0] ?? 'Oral Screen AI';
 
   return (
     <header className="hidden md:flex ml-60 h-16 items-center justify-between px-xl bg-surface border-b border-outline-variant sticky top-0 z-40">

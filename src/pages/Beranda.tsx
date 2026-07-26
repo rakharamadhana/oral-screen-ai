@@ -3,56 +3,82 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, BarChart3, TrendingUp, Calendar, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { StatTile } from '../components/ui/StatTile';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { ArticleCard } from '../components/ui/ArticleCard';
+import { ArticleCardSkeleton, Skeleton } from '../components/ui/Skeleton';
 import { RiskIcon } from '../components/ui/RiskBadge';
 import { ARTICLES, SEED_PROFILE, UPCOMING_CHECKUP } from '../lib/mockData';
-import { getLatestScan, listScans } from '../lib/repository';
+import { getProfile, listArticles, listScans } from '../lib/repository';
 import { classifyRisk } from '../lib/risk';
-import type { ScanRecord } from '../lib/types';
+import { useLang, type Lang } from '../lib/i18n';
+import type { Article, Profile, ScanRecord } from '../lib/types';
+
+function formatShortDate(iso: string, lang: Lang): string {
+  return new Date(iso).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 export function Beranda() {
   const navigate = useNavigate();
-  const [latest, setLatest] = useState<ScanRecord | null>(null);
-  const [total, setTotal] = useState(0);
+  const { t, lang } = useLang();
+  const [scans, setScans] = useState<ScanRecord[]>([]);
+  const [profile, setProfile] = useState<Profile>(SEED_PROFILE);
+  const [articles, setArticles] = useState<Article[]>(ARTICLES);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLatestScan().then(setLatest).catch(() => setLatest(null));
-    listScans().then((s) => setTotal(s.length)).catch(() => setTotal(0));
+    Promise.all([
+      listScans().then(setScans).catch(() => setScans([])),
+      getProfile().then(setProfile).catch(() => setProfile(SEED_PROFILE)),
+      listArticles().then(setArticles).catch(() => setArticles(ARTICLES)),
+    ]).finally(() => setLoading(false));
   }, []);
 
-  const latestCopy = latest ? classifyRisk(latest.topProbability, 0.1973) : null;
+  const total = scans.length;
+  const recent = scans.slice(0, 8);
+
+  if (loading) return <BerandaSkeleton />;
 
   return (
     <div>
       {/* Greeting */}
       <section className="mb-lg">
         <h3 className="text-display-lg-mobile md:text-display-lg text-on-surface">
-          Halo, {SEED_PROFILE.fullName}! <span className="hidden md:inline">👋</span>
+          {t('Halo', 'Hi')}, {profile.fullName}! <span className="hidden md:inline">👋</span>
         </h3>
         <p className="text-body-lg text-on-surface-variant">
-          Pantau kesehatan mulut Anda secara rutin untuk pencegahan dini.
+          {t(
+            'Pantau kesehatan mulut Anda secara rutin untuk pencegahan dini.',
+            'Monitor your oral health regularly for early prevention.',
+          )}
         </p>
       </section>
 
-      {/* Bento grid */}
-      <div className="grid grid-cols-12 gap-md">
+      {/* Mobile: single-column stack of carousels. Desktop (lg+): filled bento. */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
         {/* Hero CTA */}
-        <div className="col-span-12 lg:col-span-8 bg-primary rounded-xl p-lg flex flex-col md:flex-row items-start md:items-center justify-between overflow-hidden relative group">
+        <div className="lg:col-span-8 bg-primary rounded-xl p-lg flex flex-col md:flex-row items-start md:items-center justify-between overflow-hidden relative group">
           <div className="z-10 text-on-primary">
-            <h4 className="text-headline-md mb-xs font-semibold">Mulai Pemeriksaan Baru</h4>
+            <h4 className="text-headline-md mb-xs font-semibold">
+              {t('Mulai Pemeriksaan Baru', 'Start a New Scan')}
+            </h4>
             <p className="text-body-md opacity-90 max-w-md mb-md">
-              Lakukan pemindaian cepat dengan AI kami untuk mendeteksi potensi risiko kanker mulut
-              dalam hitungan detik.
+              {t(
+                'Lakukan pemindaian cepat dengan AI kami untuk mendeteksi potensi risiko kanker mulut dalam hitungan detik.',
+                'Run a quick AI scan to detect potential oral cancer risk in seconds.',
+              )}
             </p>
             <Button
               variant="secondary"
-              className="!bg-surface !text-primary hover:!shadow-lg"
+              className="!bg-surface !text-primary !font-bold !text-body-lg !px-lg !py-md shadow-lg hover:!shadow-xl hover:!-translate-y-0.5 transition-all"
               onClick={() => navigate('/pemeriksaan')}
             >
-              <Camera size={18} />
-              Ambil Foto Sekarang
+              <Camera size={20} />
+              {t('Ambil Foto Sekarang', 'Take a Photo Now')}
+              <ArrowRight size={18} />
             </Button>
           </div>
           <Camera
@@ -61,65 +87,75 @@ export function Beranda() {
           />
         </div>
 
-        {/* Health stats */}
-        <Card className="col-span-12 lg:col-span-4 p-lg flex flex-col justify-between">
-          <div>
-            <h4 className="text-label-md text-on-surface-variant uppercase tracking-widest mb-md">
-              Statistik Kesehatan
-            </h4>
-            <div className="space-y-md">
-              <StatTile icon={BarChart3} label="Total Scan" value={`${total} Kali`} />
-              <StatTile
+        {/* Health stats — mobile: full-bleed carousel; desktop: stacked beside hero */}
+        <section className="lg:col-span-4 flex flex-col">
+          <SectionHeader title={t('Statistik Kesehatan', 'Health Stats')} />
+          <div className="flex gap-md overflow-x-auto no-scrollbar pb-xs -mx-md px-md lg:mx-0 lg:px-0 lg:flex-col lg:flex-1 lg:overflow-visible">
+            <div className="w-40 shrink-0 lg:w-auto">
+              <StatBox
+                icon={BarChart3}
+                value={`${total}×`}
+                label={t('Total Scan', 'Total Scans')}
+                iconBg="bg-primary-container"
+                iconColor="text-on-primary-container"
+              />
+            </div>
+            <div className="w-40 shrink-0 lg:w-auto">
+              <StatBox
                 icon={TrendingUp}
-                label="Konsistensi"
-                value="Sangat Baik"
+                value={t('Sangat Baik', 'Excellent')}
+                label={t('Konsistensi', 'Consistency')}
                 iconBg="bg-tertiary-container"
                 iconColor="text-on-tertiary-container"
               />
             </div>
+            <div className="w-40 shrink-0 lg:w-auto">
+              <StatBox
+                icon={Calendar}
+                value={recent[0] ? formatShortDate(recent[0].createdAt, lang) : '—'}
+                label={t('Pemindaian Terakhir', 'Last Scan')}
+                iconBg="bg-secondary-container"
+                iconColor="text-on-secondary-container"
+              />
+            </div>
           </div>
-          <div className="mt-md pt-md border-t border-outline-variant">
-            <p className="text-caption text-on-surface-variant">Update terakhir: 2 hari yang lalu</p>
-          </div>
-        </Card>
+        </section>
 
-        {/* Last result */}
-        <Card
-          className="col-span-12 lg:col-span-5 p-lg"
-          accent={latestCopy?.color ?? '#006b2d'}
-        >
-          <div className="flex items-start justify-between mb-md">
-            <div>
-              <h4
-                className="text-label-md uppercase font-bold mb-xs"
-                style={{ color: latestCopy?.color ?? '#006b2d' }}
-              >
-                Hasil Terakhir
-              </h4>
-              <p className="text-headline-md text-on-surface">
-                {latestCopy?.label ?? 'Belum ada pemindaian'}
+        {/* Recent results — full-bleed carousel, most recent highlighted */}
+        <section className="lg:col-span-12">
+          <SectionHeader
+            title={t('Hasil Terakhir', 'Latest Results')}
+            actionLabel={recent.length > 0 ? t('Lihat Semua', 'View All') : undefined}
+            actionTo={recent.length > 0 ? '/riwayat' : undefined}
+          />
+          {recent.length > 0 ? (
+            <div className="flex gap-md overflow-x-auto no-scrollbar pb-xs -mx-md px-md md:mx-0 md:px-0 md:grid md:grid-cols-4 md:overflow-visible">
+              {recent.map((s, i) => (
+                // Mobile: horizontal scroll of all recent. Desktop: only the 4
+                // most recent in a grid (no scroll).
+                <div
+                  key={s.id}
+                  className={`w-44 shrink-0 md:w-auto ${i >= 4 ? 'md:hidden' : ''}`}
+                >
+                  <ResultCard scan={s} highlighted={i === 0} onClick={() => navigate('/riwayat')} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-md rounded-xl border border-outline-variant p-md">
+              <CheckCircle2 size={22} className="text-tertiary shrink-0" />
+              <p className="text-body-md text-on-surface-variant">
+                {t(
+                  'Mulai pemeriksaan pertama Anda untuk melihat hasil analisis kesehatan mulut di sini.',
+                  'Start your first scan to see your oral health analysis here.',
+                )}
               </p>
             </div>
-            {latestCopy ? (
-              <RiskIcon level={latestCopy.level} />
-            ) : (
-              <CheckCircle2 size={20} className="text-tertiary" />
-            )}
-          </div>
-          <p className="text-body-md text-on-surface-variant mb-lg">
-            {latestCopy?.advice ??
-              'Mulai pemeriksaan pertama Anda untuk melihat hasil analisis kesehatan mulut di sini.'}
-          </p>
-          <button
-            onClick={() => navigate('/riwayat')}
-            className="text-label-md font-semibold text-primary flex items-center gap-xs hover:underline"
-          >
-            Lihat Detail Riwayat <ArrowRight size={14} />
-          </button>
-        </Card>
+          )}
+        </section>
 
         {/* Upcoming checkup */}
-        <Card className="col-span-12 lg:col-span-7 p-lg flex items-center gap-lg">
+        <Card className="lg:col-span-12 p-lg flex items-center gap-lg">
           <div className="w-20 h-20 bg-secondary-fixed text-on-secondary-fixed flex flex-col items-center justify-center rounded-xl shrink-0">
             <span className="text-xs font-bold uppercase">{UPCOMING_CHECKUP.monthLabel}</span>
             <span className="text-2xl font-extrabold">{UPCOMING_CHECKUP.day}</span>
@@ -129,10 +165,10 @@ export function Beranda() {
             <p className="text-body-md text-on-surface-variant mb-base">{UPCOMING_CHECKUP.detail}</p>
             <div className="flex gap-sm flex-wrap">
               <Button variant="secondary" className="!py-base">
-                Atur Pengingat
+                {t('Atur Pengingat', 'Set Reminder')}
               </Button>
               <Button variant="outline" className="!py-base">
-                Reschedule
+                {t('Reschedule', 'Reschedule')}
               </Button>
             </div>
           </div>
@@ -140,11 +176,145 @@ export function Beranda() {
         </Card>
 
         {/* Education */}
-        <div className="col-span-12 mt-lg">
-          <SectionHeader title="Edukasi & Tips Kesehatan" actionLabel="Lihat Semua" actionTo="/edukasi" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-            {ARTICLES.slice(0, 3).map((a) => (
-              <ArticleCard key={a.id} article={a} />
+        <section className="lg:col-span-12">
+          <SectionHeader
+            title={t('Edukasi & Tips Kesehatan', 'Education & Health Tips')}
+            actionLabel={t('Lihat Semua', 'View All')}
+            actionTo="/edukasi"
+          />
+          {/* Horizontal carousel on mobile (cards peek), 3-up grid at md+. */}
+          <div className="flex gap-md overflow-x-auto no-scrollbar pb-xs -mx-md px-md md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+            {articles.slice(0, 3).map((a) => (
+              <div key={a.id} className="w-[80%] max-w-xs shrink-0 md:w-auto md:max-w-none">
+                <ArticleCard article={a} />
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+/** A stat rectangle (icon + big value + label) for the Health Stats card. */
+function StatBox({
+  icon: Icon,
+  value,
+  label,
+  iconBg,
+  iconColor,
+}: {
+  icon: typeof BarChart3;
+  value: string;
+  label: string;
+  iconBg: string;
+  iconColor: string;
+}) {
+  return (
+    <div className="rounded-xl border border-outline-variant p-md flex flex-col gap-sm">
+      <span className={`w-9 h-9 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}>
+        <Icon size={18} />
+      </span>
+      <div>
+        <p className="text-body-lg md:text-headline-md font-bold text-on-surface leading-tight">{value}</p>
+        <p className="text-caption text-on-surface-variant">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+/** A recent-scan mini card for the Latest Results carousel. */
+function ResultCard({
+  scan,
+  highlighted,
+  onClick,
+}: {
+  scan: ScanRecord;
+  highlighted: boolean;
+  onClick: () => void;
+}) {
+  const { t, lang } = useLang();
+  const risk = classifyRisk(scan.topProbability, 0.1973);
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full h-full text-left rounded-xl p-md border-2 transition-colors ${
+        highlighted ? '' : 'border-outline-variant hover:border-primary/40'
+      }`}
+      style={highlighted ? { borderColor: risk.color, backgroundColor: `${risk.color}0f` } : {}}
+    >
+      <div className="flex items-center justify-between mb-sm h-6">
+        <RiskIcon level={scan.riskLevel} size={22} />
+        {highlighted && (
+          <span
+            className="text-[10px] font-bold uppercase px-sm py-xs rounded-full text-white"
+            style={{ backgroundColor: risk.color }}
+          >
+            {t('Terbaru', 'Latest')}
+          </span>
+        )}
+      </div>
+      <p className="text-body-lg font-bold text-on-surface leading-tight">
+        {lang === 'en' ? risk.labelEn : risk.label}
+      </p>
+      <p className="text-caption text-on-surface-variant mb-sm">{formatShortDate(scan.createdAt, lang)}</p>
+      <p className="text-headline-md font-extrabold leading-none" style={{ color: risk.color }}>
+        {(scan.topProbability * 100).toFixed(1)}%
+      </p>
+    </button>
+  );
+}
+
+function BerandaSkeleton() {
+  return (
+    <div>
+      <section className="mb-lg space-y-sm">
+        <Skeleton className="h-9 w-64" />
+        <Skeleton className="h-5 w-80 max-w-full" />
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+        {/* Hero CTA */}
+        <Skeleton className="lg:col-span-8 h-48 rounded-xl" />
+
+        {/* Health stats carousel */}
+        <div className="lg:col-span-4 space-y-md">
+          <Skeleton className="h-6 w-48" />
+          <div className="flex gap-md -mx-md px-md lg:mx-0 lg:px-0 lg:flex-col">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="w-40 h-24 shrink-0 lg:w-auto rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        {/* Recent results carousel */}
+        <div className="lg:col-span-12 space-y-md">
+          <Skeleton className="h-6 w-40" />
+          <div className="flex gap-md -mx-md px-md md:mx-0 md:px-0 md:grid md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="w-44 h-32 shrink-0 md:w-auto rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        {/* Upcoming checkup */}
+        <Card className="lg:col-span-12 p-lg flex items-center gap-lg">
+          <Skeleton className="w-20 h-20 rounded-xl shrink-0" />
+          <div className="flex-1 space-y-sm">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64 max-w-full" />
+            <Skeleton className="h-9 w-40" />
+          </div>
+        </Card>
+
+        {/* Education */}
+        <div className="lg:col-span-12 space-y-md">
+          <Skeleton className="h-6 w-56" />
+          <div className="flex gap-md overflow-x-auto no-scrollbar pb-xs -mx-md px-md md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="w-[80%] max-w-xs shrink-0 md:w-auto md:max-w-none">
+                <ArticleCardSkeleton />
+              </div>
             ))}
           </div>
         </div>

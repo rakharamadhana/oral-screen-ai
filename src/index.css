@@ -77,3 +77,27 @@
     animation: none;
   }
 }
+
+/* Modal / bottom-sheet: slide up from the bottom on mobile only. */
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@media (max-width: 767px) {
+  /* Entrance only (no fill-mode): the panel's resting position must never
+     depend on the animation completing. */
+  .modal-sheet {
+    animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-sheet {
+    animation: none;
+  }
+}

@@ -6,12 +6,15 @@ interface CardProps {
   /** Optional color-coded left status border (Clinical Clarity status card). */
   accent?: string;
   style?: CSSProperties;
+  /** When provided, the card becomes clickable. */
+  onClick?: () => void;
 }
 
 /** White surface card: 1px outline, 12px radius, flat (per Clinical Clarity). */
-export function Card({ children, className = '', accent, style }: CardProps) {
+export function Card({ children, className = '', accent, style, onClick }: CardProps) {
   return (
     <div
+      onClick={onClick}
       className={`bg-surface-container-lowest rounded-xl border border-outline-variant ${className}`}
       style={{ ...(accent ? { borderLeft: `6px solid ${accent}` } : {}), ...style }}
     >

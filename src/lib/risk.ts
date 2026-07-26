@@ -21,28 +21,41 @@ export interface RiskResult {
   color: string;
   /** Short Indonesian status label, e.g. "Risiko Rendah". */
   label: string;
-  /** Longer advice copy for the result screen. */
+  /** English status label. */
+  labelEn: string;
+  /** Longer advice copy for the result screen (Indonesian). */
   advice: string;
+  /** English advice copy. */
+  adviceEn: string;
 }
 
-const COPY: Record<RiskLevel, { color: string; label: string; advice: string }> = {
+const COPY: Record<RiskLevel, { color: string; label: string; labelEn: string; advice: string; adviceEn: string }> = {
   Rendah: {
     color: '#006b2d',
     label: 'Risiko Rendah',
+    labelEn: 'Low Risk',
     advice:
       'Tidak ditemukan ciri yang memerlukan rujukan pada citra Anda. Tetap lakukan pemeriksaan rutin, dan periksakan bila ada nyeri, pendarahan, atau luka yang tak sembuh dalam 2 minggu.',
+    adviceEn:
+      'No features requiring referral were found in your image. Keep up routine checks, and see a professional if you have pain, bleeding, or a sore that does not heal within 2 weeks.',
   },
   Sedang: {
     color: '#b45309',
     label: 'Perlu Observasi',
+    labelEn: 'Needs Observation',
     advice:
       'Terdapat ciri yang sebaiknya diamati lebih lanjut. Jadwalkan pemeriksaan ulang dalam 14 hari dan pantau perubahan pada area tersebut. Ini sinyal triase, bukan diagnosis.',
+    adviceEn:
+      'Some features are worth monitoring further. Schedule a re-check within 14 days and watch the area for changes. This is a triage signal, not a diagnosis.',
   },
   Tinggi: {
     color: '#ba1a1a',
     label: 'Indikasi Risiko Tinggi',
+    labelEn: 'High Risk Indication',
     advice:
       'Citra menunjukkan ciri yang sebaiknya segera diperiksa dokter gigi atau spesialis. Segera konsultasikan hasil ini. Ini sinyal triase, bukan diagnosis.',
+    adviceEn:
+      'The image shows features that should be examined by a dentist or specialist soon. Consult about this result promptly. This is a triage signal, not a diagnosis.',
   },
 };
 

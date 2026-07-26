@@ -1,15 +1,20 @@
-// Data access for scans + profile.
+// Data access for scans + profile + articles.
 //
 // Uses Supabase (Postgres) when configured; otherwise falls back to localStorage
 // so the app is fully functional offline / before a backend exists. Both paths
 // return the same domain types (types.ts), so pages never branch on the source.
+//
+// Privacy: image-derived data (scan thumbnails) is NEVER sent to the server.
+// Thumbnails live only in browser localStorage, keyed by scan id, and are
+// re-attached to scan records on read. Full-resolution photos are never stored.
 
 import { supabase } from './supabase';
-import { SEED_HISTORY, SEED_PROFILE } from './mockData';
-import type { Profile, ScanRecord } from './types';
+import { SEED_HISTORY, SEED_PROFILE, ARTICLES, getArticleById } from './mockData';
+import type { Article, Profile, ScanRecord } from './types';
 
 const SCANS_KEY = 'osa:scans:v1';
 const PROFILE_KEY = 'osa:profile:v1';
+const THUMBS_KEY = 'osa:thumbs:v1'; // { [scanId]: dataUrl }
 
 // ---------- helpers ----------
 
@@ -38,7 +43,21 @@ function writeLocal(key: string, value: unknown): void {
   }
 }
 
-// Map a Supabase row to the domain ScanRecord.
+// ---------- on-device thumbnail store (never leaves the browser) ----------
+
+function saveThumb(id: string, dataUrl: string | null): void {
+  if (!dataUrl) return;
+  const map = readLocal<Record<string, string>>(THUMBS_KEY, {});
+  map[id] = dataUrl;
+  writeLocal(THUMBS_KEY, map);
+}
+
+function getThumb(id: string): string | null {
+  const map = readLocal<Record<string, string>>(THUMBS_KEY, {});
+  return map[id] ?? null;
+}
+
+// Map a Supabase row to the domain ScanRecord. Thumbnail comes from localStorage.
 type ScanRow = {
   id: string;
   ref_code: string;
@@ -46,7 +65,8 @@ type ScanRow = {
   risk_level: ScanRecord['riskLevel'];
   top_probability: number;
   region_results: ScanRecord['regionResults'];
-  thumbnail: string | null;
+  patient_name: string | null;
+  patient_medical_id: string | null;
 };
 
 function rowToScan(r: ScanRow): ScanRecord {
@@ -57,7 +77,9 @@ function rowToScan(r: ScanRow): ScanRecord {
     riskLevel: r.risk_level,
     topProbability: r.top_probability,
     regionResults: r.region_results ?? [],
-    thumbnail: r.thumbnail,
+    patientName: r.patient_name ?? undefined,
+    patientMedicalId: r.patient_medical_id ?? undefined,
+    thumbnail: getThumb(r.id),
   };
 }
 
@@ -78,14 +100,21 @@ export async function listScans(): Promise<ScanRecord[]> {
 }
 
 export async function addScan(scan: ScanRecord): Promise<void> {
+  // Thumbnail always stays on-device, regardless of backend.
+  saveThumb(scan.id, scan.thumbnail);
+
   if (supabase) {
+    // Send the client-generated uuid so the row id matches the local thumbnail
+    // key (and so patient identity travels with the scan). No image data.
     const { error } = await supabase.from('scans').insert({
+      id: scan.id,
       ref_code: scan.refCode,
       created_at: scan.createdAt,
       risk_level: scan.riskLevel,
       top_probability: scan.topProbability,
       region_results: scan.regionResults,
-      thumbnail: scan.thumbnail,
+      patient_name: scan.patientName ?? null,
+      patient_medical_id: scan.patientMedicalId ?? null,
     });
     if (error) throw error;
     return;
@@ -117,6 +146,7 @@ export async function getProfile(): Promise<Profile> {
         avatarUrl: data.avatar_url,
         verified: data.verified,
         notifications: data.notifications ?? SEED_PROFILE.notifications,
+        riskFactors: data.risk_factors ?? [],
       };
     }
     return SEED_PROFILE;
@@ -137,9 +167,59 @@ export async function saveProfile(profile: Profile): Promise<void> {
       avatar_url: profile.avatarUrl,
       verified: profile.verified,
       notifications: profile.notifications,
+      risk_factors: profile.riskFactors,
     });
     if (error) throw error;
     return;
   }
   writeLocal(PROFILE_KEY, profile);
+}
+
+// ---------- articles ----------
+
+type ArticleRow = {
+  id: string;
+  category: Article['category'];
+  title: string;
+  excerpt: string;
+  read_minutes: number;
+  featured: boolean;
+  cover: string;
+  body: string[] | null;
+};
+
+function rowToArticle(r: ArticleRow): Article {
+  return {
+    id: r.id,
+    category: r.category,
+    title: r.title,
+    excerpt: r.excerpt,
+    readMinutes: r.read_minutes,
+    featured: r.featured,
+    cover: r.cover,
+    // Empty array in the DB means "no custom body" — let callers fall back to
+    // the default body, matching the static content's optional `body`.
+    body: r.body && r.body.length > 0 ? r.body : undefined,
+  };
+}
+
+export async function listArticles(): Promise<Article[]> {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    if (error) throw error;
+    return (data as ArticleRow[]).map(rowToArticle);
+  }
+  return ARTICLES;
+}
+
+export async function getArticle(id: string): Promise<Article | undefined> {
+  if (supabase) {
+    const { data, error } = await supabase.from('articles').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? rowToArticle(data as ArticleRow) : undefined;
+  }
+  return getArticleById(id);
 }

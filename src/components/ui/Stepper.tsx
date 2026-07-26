@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react';
+import { useLang } from '../../lib/i18n';
 
 interface StepperProps {
   steps: string[];
@@ -45,11 +46,12 @@ export function Stepper({ steps, current }: StepperProps) {
 
 /** Compact progress bar with "LANGKAH x DARI n" (mobile). */
 export function StepperMobile({ steps, current }: StepperProps) {
+  const { t } = useLang();
   return (
     <div className="bg-surface-container-low rounded-xl border border-outline-variant p-md">
       <div className="flex items-center justify-between mb-sm">
         <span className="text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">
-          Langkah {current + 1} dari {steps.length}
+          {t(`Langkah ${current + 1} dari ${steps.length}`, `Step ${current + 1} of ${steps.length}`)}
         </span>
         <span className="text-label-md font-semibold text-primary">{steps[current]}</span>
       </div>

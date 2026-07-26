@@ -16,7 +16,14 @@ export interface ScanRecord {
   riskLevel: RiskLevel;
   topProbability: number;
   regionResults: RegionResult[];
-  /** Small downscaled JPEG data URL of the most concerning region, for lists. */
+  /** Patient this scan belongs to (from the profile at scan time). */
+  patientName?: string;
+  patientMedicalId?: string;
+  /**
+   * Small downscaled JPEG data URL for lists. Image-derived data never leaves
+   * the device — this is persisted only in browser localStorage, never in the
+   * database. Null when the thumbnail isn't available locally.
+   */
   thumbnail: string | null;
 }
 
@@ -35,7 +42,17 @@ export interface Profile {
     education: boolean;
     updates: boolean;
   };
+  /** Risk-factor questionnaire answers (checked labels), captured on the profile. */
+  riskFactors: string[];
 }
+
+/** The risk-factor questionnaire options (asked once on the Profil page). */
+export const RISK_FACTORS = [
+  'Perokok aktif',
+  'Konsumsi alkohol rutin',
+  'Riwayat keluarga kanker mulut',
+  'Luka mulut > 2 minggu',
+] as const;
 
 export interface Article {
   id: string;

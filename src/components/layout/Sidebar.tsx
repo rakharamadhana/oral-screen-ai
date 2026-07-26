@@ -3,10 +3,12 @@ import { LogOut } from 'lucide-react';
 import { SIDEBAR_ITEMS } from './navItems';
 import { SEED_PROFILE } from '../../lib/mockData';
 import { useAuth } from '../../lib/auth';
+import { useLang } from '../../lib/i18n';
 
 /** Fixed 240px desktop sidebar (hidden below md). */
 export function Sidebar() {
   const { logout } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
   const onLogout = () => {
     logout();
@@ -22,7 +24,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 mt-lg px-xs space-y-base">
-        {SIDEBAR_ITEMS.map(({ to, label, icon: Icon }) => (
+        {SIDEBAR_ITEMS.map(({ to, label, labelEn, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -36,7 +38,7 @@ export function Sidebar() {
             }
           >
             <Icon size={20} />
-            <span className="text-label-md font-semibold">{label}</span>
+            <span className="text-label-md font-semibold">{t(label, labelEn)}</span>
           </NavLink>
         ))}
       </nav>
@@ -56,7 +58,7 @@ export function Sidebar() {
           className="flex items-center gap-sm text-error text-label-md font-semibold hover:opacity-80 transition-opacity"
         >
           <LogOut size={18} />
-          Keluar
+          {t('Keluar', 'Sign Out')}
         </button>
       </div>
     </aside>
