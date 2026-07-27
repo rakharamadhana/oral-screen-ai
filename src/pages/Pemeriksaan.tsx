@@ -17,10 +17,9 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Stepper, StepperMobile } from '../components/ui/Stepper';
 import { RiskIcon } from '../components/ui/RiskBadge';
-import { ScoreMeter } from '../components/ui/ScoreMeter';
 import { LiveInference } from '../components/scan/LiveInference';
 import { CameraCapture } from '../components/scan/CameraCapture';
-import { useOnnxModel } from '../hooks/useOnnxModel';
+import { useOnnxModel, type ModelProgress } from '../hooks/useOnnxModel';
 import { renderCAMToCanvas, loadImage, type InferenceOutput } from '../lib/inference';
 import { classifyRisk, type RiskResult } from '../lib/risk';
 import { addScan, generateRefCode, getProfile } from '../lib/repository';
@@ -98,15 +97,18 @@ export function Pemeriksaan() {
     setStep(2);
   };
 
+  const [scanError, setScanError] = useState<string | null>(null);
+
   const runAnalysis = async () => {
     if (!photo) return;
     setRunning(true);
+    setScanError(null);
     try {
       const output = await model.infer(photo);
       await commitResult(photo, output);
     } catch (e) {
       console.error(e);
-      alert('Gagal memproses gambar. Coba lagi.');
+      setScanError(e instanceof Error ? e.message : String(e));
     } finally {
       setRunning(false);
     }
@@ -121,6 +123,9 @@ export function Pemeriksaan() {
 
   return (
     <div>
+      {/* Full-screen overlay while the ~25 MB model downloads on first use. */}
+      {model.loading && !model.error && <ModelLoadingOverlay progress={model.progress} />}
+
       {/* Stepper */}
       <Card className="p-md md:p-lg mb-md hidden md:block">
         <Stepper steps={STEPS.map(([id, en]) => t(id, en))} current={step} />
@@ -146,18 +151,18 @@ export function Pemeriksaan() {
         <KonfirmasiStep
           photo={photo}
           running={running}
+          modelReady={model.ready}
           modelLoading={model.loading}
+          modelError={model.error}
+          progress={model.progress}
+          scanError={scanError}
+          onReloadModel={model.reload}
           onBack={() => setStep(0)}
           onProcess={runAnalysis}
         />
       )}
       {step === 2 && result && (
-        <SelesaiStep
-          result={result}
-          threshold={threshold}
-          onReset={reset}
-          onHistory={() => navigate('/riwayat')}
-        />
+        <SelesaiStep result={result} onReset={reset} onHistory={() => navigate('/riwayat')} />
       )}
     </div>
   );
@@ -472,20 +477,109 @@ function SinglePhotoUpload({
   );
 }
 
+/** Formats a byte count as MB with one decimal (e.g. 12.4). */
+function mb(bytes: number): string {
+  return (bytes / (1024 * 1024)).toFixed(1);
+}
+
+/** Full-screen overlay shown while the model downloads/initialises on first use. */
+function ModelLoadingOverlay({ progress }: { progress: ModelProgress | null }) {
+  const { t } = useLang();
+  const total = progress?.total ?? 0;
+  const loaded = progress?.loaded ?? 0;
+  const pct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface/95 backdrop-blur-sm p-lg">
+      <div className="w-full max-w-sm text-center">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-md">
+          <Loader2 size={28} className="animate-spin text-primary" />
+        </div>
+        <h3 className="text-headline-md font-bold text-on-surface">
+          {t('Menyiapkan model AI', 'Preparing the AI model')}
+        </h3>
+        <p className="text-body-md text-on-surface-variant mt-xs">
+          {t(
+            'Model dijalankan langsung di perangkat Anda dan diunduh sekali saja, lalu tersimpan untuk pemeriksaan berikutnya.',
+            'The model runs entirely on your device and downloads only once, then is cached for future scans.',
+          )}
+        </p>
+
+        <div className="mt-lg h-2.5 rounded-full bg-surface-container overflow-hidden">
+          <div
+            className={`h-full bg-primary transition-[width] duration-200 ${pct == null ? 'animate-pulse w-1/3' : ''}`}
+            style={pct == null ? undefined : { width: `${pct}%` }}
+          />
+        </div>
+        <p className="text-caption text-on-surface-variant mt-sm tabular-nums">
+          {total > 0
+            ? `${mb(loaded)} / ${mb(total)} MB · ${pct}%`
+            : t('Memuat…', 'Loading…')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Prominent progress panel shown while the ~25 MB model downloads on first use. */
+function ModelDownload({ progress }: { progress: ModelProgress | null }) {
+  const { t } = useLang();
+  const total = progress?.total ?? 0;
+  const loaded = progress?.loaded ?? 0;
+  const pct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : null;
+
+  return (
+    <div className="mt-md rounded-xl border border-outline-variant bg-surface-container-low p-md">
+      <p className="text-body-md font-semibold text-on-surface flex items-center gap-xs">
+        <Loader2 size={16} className="animate-spin text-primary" />
+        {t('Menyiapkan model AI di perangkat…', 'Preparing the on-device AI model…')}
+      </p>
+      <p className="text-caption text-on-surface-variant mt-xs">
+        {t(
+          'Model diunduh sekali lalu tersimpan untuk pemeriksaan berikutnya.',
+          'The model downloads once, then is cached for future scans.',
+        )}
+      </p>
+      <div className="mt-sm h-2 rounded-full bg-surface-container overflow-hidden">
+        <div
+          className={`h-full bg-primary transition-[width] duration-200 ${pct == null ? 'animate-pulse w-1/3' : ''}`}
+          style={pct == null ? undefined : { width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-caption text-on-surface-variant mt-xs tabular-nums">
+        {total > 0
+          ? `${mb(loaded)} / ${mb(total)} MB · ${pct}%`
+          : `${mb(loaded)} MB`}
+      </p>
+    </div>
+  );
+}
+
 function KonfirmasiStep({
   photo,
   running,
+  modelReady,
   modelLoading,
+  modelError,
+  progress,
+  scanError,
+  onReloadModel,
   onBack,
   onProcess,
 }: {
   photo: string | null;
   running: boolean;
+  modelReady: boolean;
   modelLoading: boolean;
+  modelError: string | null;
+  progress: ModelProgress | null;
+  scanError: string | null;
+  onReloadModel: () => void;
   onBack: () => void;
   onProcess: () => void;
 }) {
   const { t } = useLang();
+  const err = modelError ?? scanError;
   return (
     <StepShell
       title={t('Konfirmasi Pemeriksaan', 'Confirm Scan')}
@@ -501,19 +595,35 @@ function KonfirmasiStep({
           className="w-full max-h-80 object-contain rounded-lg border border-outline-variant bg-surface-container"
         />
       )}
-      {modelLoading && (
-        <p className="text-caption text-on-surface-variant mt-md flex items-center gap-xs">
-          <Loader2 size={14} className="animate-spin" /> {t('Memuat model AI di perangkat…', 'Loading the on-device AI model…')}
-        </p>
+
+      {/* Model still downloading/initialising — show real progress, not a blind spinner. */}
+      {modelLoading && !err && <ModelDownload progress={progress} />}
+
+      {/* Load or inference failed — surface the real reason and let the user retry. */}
+      {err && (
+        <div className="mt-md rounded-xl border border-error/40 bg-error/5 p-md">
+          <p className="text-body-md font-semibold text-error">
+            {t('Gagal menyiapkan model AI.', 'Could not prepare the AI model.')}
+          </p>
+          <p className="text-caption text-on-surface-variant mt-xs break-words">{err}</p>
+          <Button variant="outline" onClick={onReloadModel} className="mt-sm">
+            <RotateCcw size={16} /> {t('Coba Lagi', 'Try Again')}
+          </Button>
+        </div>
       )}
+
       <div className="flex items-center justify-between gap-sm mt-lg">
         <Button variant="outline" onClick={onBack} disabled={running}>
           {t('Kembali', 'Back')}
         </Button>
-        <Button onClick={onProcess} disabled={running || !photo}>
+        <Button onClick={onProcess} disabled={running || !photo || !modelReady}>
           {running ? (
             <>
               <Loader2 size={18} className="animate-spin" /> {t('Memproses…', 'Processing…')}
+            </>
+          ) : modelLoading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> {t('Memuat model…', 'Loading model…')}
             </>
           ) : (
             <>
@@ -528,12 +638,10 @@ function KonfirmasiStep({
 
 function SelesaiStep({
   result,
-  threshold,
   onReset,
   onHistory,
 }: {
   result: { risk: RiskResult; photo: string; output: InferenceOutput };
-  threshold: number;
   onReset: () => void;
   onHistory: () => void;
 }) {
@@ -552,11 +660,6 @@ function SelesaiStep({
               {lang === 'en' ? risk.labelEn : risk.label}
             </h3>
           </div>
-        </div>
-
-        {/* Prominent score */}
-        <div className="rounded-xl border border-outline-variant p-md mb-md">
-          <ScoreMeter probability={output.prob} color={risk.color} threshold={threshold} />
         </div>
 
         {/* What to do next */}

@@ -244,7 +244,7 @@ function ResultCard({
       style={highlighted ? { borderColor: risk.color, backgroundColor: `${risk.color}0f` } : {}}
     >
       <div className="flex items-center justify-between mb-sm h-6">
-        <RiskIcon level={scan.riskLevel} size={22} />
+        <RiskIcon level={risk.level} size={22} />
         {highlighted && (
           <span
             className="text-[10px] font-bold uppercase px-sm py-xs rounded-full text-white"
@@ -254,13 +254,10 @@ function ResultCard({
           </span>
         )}
       </div>
-      <p className="text-body-lg font-bold text-on-surface leading-tight">
+      <p className="text-body-lg font-bold leading-tight" style={{ color: risk.color }}>
         {lang === 'en' ? risk.labelEn : risk.label}
       </p>
-      <p className="text-caption text-on-surface-variant mb-sm">{formatShortDate(scan.createdAt, lang)}</p>
-      <p className="text-headline-md font-extrabold leading-none" style={{ color: risk.color }}>
-        {(scan.topProbability * 100).toFixed(1)}%
-      </p>
+      <p className="text-caption text-on-surface-variant">{formatShortDate(scan.createdAt, lang)}</p>
     </button>
   );
 }

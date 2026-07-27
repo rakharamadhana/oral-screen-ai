@@ -39,18 +39,68 @@ export interface LoadedModel {
 
 const MODELS_BASE = 'assets/models';
 
+/** Reports model-download progress. `total` is 0 when the length is unknown. */
+export type LoadProgress = (loaded: number, total: number) => void;
+
+/**
+ * Streams a URL into a Uint8Array, reporting byte progress as it goes. This lets
+ * the UI show a real "downloading the 25 MB model" indicator instead of a blind
+ * spinner. Falls back to a plain download if the stream/length is unavailable.
+ */
+async function fetchBytesWithProgress(url: string, onProgress?: LoadProgress): Promise<Uint8Array> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`model download failed (HTTP ${res.status})`);
+
+  const total = Number(res.headers.get('content-length')) || 0;
+  if (!res.body) {
+    const buf = new Uint8Array(await res.arrayBuffer());
+    onProgress?.(buf.byteLength, buf.byteLength);
+    return buf;
+  }
+
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let loaded = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    loaded += value.byteLength;
+    onProgress?.(loaded, total);
+  }
+
+  const out = new Uint8Array(loaded);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
+}
+
 /**
  * Loads the config, CAM weights, and quantized ONNX session once.
  * Configures the offline WASM path for ONNX Runtime Web.
+ *
+ * `onProgress` reports download progress for the large (~25 MB) model file so
+ * the UI can show a determinate indicator on first load.
  */
-export async function loadModel(): Promise<LoadedModel> {
+export async function loadModel(onProgress?: LoadProgress): Promise<LoadedModel> {
   ort.env.wasm.wasmPaths = '/assets/';
-  // Multi-threaded WASM (COOP/COEP are set, so SharedArrayBuffer is available).
-  // Capped at 4 — more threads have diminishing returns for a single small image.
-  ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 2);
-  // Run the session in a Web Worker so a forward pass never blocks the main
-  // thread — this keeps the live-detection video loop and UI smooth.
-  ort.env.wasm.proxy = true;
+  // Multi-threaded WASM needs SharedArrayBuffer, which requires the page to be
+  // cross-origin isolated (COOP/COEP). It normally is, but a restrictive proxy
+  // or missing header would strip that — fall back to single-threaded instead
+  // of failing to instantiate. Capped at 4 (diminishing returns on one image).
+  const isolated = typeof crossOriginIsolated !== 'undefined' && crossOriginIsolated;
+  ort.env.wasm.numThreads = isolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
+  // NOTE: proxy MUST stay false. `proxy = true` spawns an ORT Web Worker that,
+  // in the Vite production bundle, ends up evaluating the main app chunk (which
+  // touches `document`) inside a Worker where `document` is undefined — throwing
+  // "ReferenceError: document is not defined" → "no available backend found
+  // [wasm]", so the model never loads in production (dev is unaffected). The
+  // heavy matmuls still parallelise across the wasm worker threads above, so
+  // live detection stays responsive without the proxy.
+  ort.env.wasm.proxy = false;
 
   const config: ModelConfig = await fetch(`${MODELS_BASE}/model_config.json`).then((r) => {
     if (!r.ok) throw new Error(`model_config.json missing (HTTP ${r.status})`);
@@ -66,8 +116,11 @@ export async function loadModel(): Promise<LoadedModel> {
     fcWeights = null;
   }
 
+  // Download the model ourselves (with progress) and hand the bytes to ORT, so
+  // the 25 MB fetch is observable rather than hidden inside the worker.
   const modelUrl = `${MODELS_BASE}/oral_referral_${config.architecture}_quant.onnx`;
-  const session = await ort.InferenceSession.create(modelUrl, {
+  const modelBytes = await fetchBytesWithProgress(modelUrl, onProgress);
+  const session = await ort.InferenceSession.create(modelBytes, {
     executionProviders: ['wasm'],
   });
 

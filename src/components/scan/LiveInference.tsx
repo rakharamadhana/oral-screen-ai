@@ -143,7 +143,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
           <div className="absolute top-sm left-sm flex items-center gap-xs bg-surface-container-lowest/90 backdrop-blur rounded-full pl-sm pr-md py-base shadow-sm">
             <RiskIcon level={risk.level} size={18} />
             <span className="text-label-md font-bold" style={{ color: risk.color }}>
-              {risk.label} • {(prob! * 100).toFixed(0)}%
+              {risk.label}
             </span>
           </div>
         )}

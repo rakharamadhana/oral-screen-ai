@@ -6,7 +6,6 @@ import { RiskBadge, RiskIcon } from '../components/ui/RiskBadge';
 import { Chip } from '../components/ui/Chip';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Modal } from '../components/ui/Modal';
-import { ScoreMeter } from '../components/ui/ScoreMeter';
 import { listScans } from '../lib/repository';
 import { useLang } from '../lib/i18n';
 import type { ScanRecord } from '../lib/types';
@@ -14,10 +13,13 @@ import { classifyRisk, type RiskLevel } from '../lib/risk';
 
 const DECISION_THRESHOLD = 0.1973;
 
+/** Referral verdict for a scan, always derived from its probability. */
+const levelOf = (r: ScanRecord): RiskLevel => classifyRisk(r.topProbability, DECISION_THRESHOLD).level;
+
 const FILTERS: Array<{ label: string; labelEn: string; match: (r: ScanRecord) => boolean }> = [
   { label: 'Semua', labelEn: 'All', match: () => true },
-  { label: 'Risiko Rendah', labelEn: 'Low Risk', match: (r) => r.riskLevel === 'Rendah' },
-  { label: 'Perlu Konsultasi', labelEn: 'Needs Consult', match: (r) => r.riskLevel !== 'Rendah' },
+  { label: 'Tidak Perlu Rujukan', labelEn: 'No Referral', match: (r) => levelOf(r) === 'TidakRujukan' },
+  { label: 'Perlu Rujukan', labelEn: 'Referral', match: (r) => levelOf(r) === 'Rujukan' },
 ];
 
 function formatDate(iso: string): { date: string; time: string } {
@@ -28,15 +30,13 @@ function formatDate(iso: string): { date: string; time: string } {
 }
 
 const SHORT_NOTE: Record<RiskLevel, [string, string]> = {
-  Rendah: ['Kondisi mulut terlihat sehat.', 'Oral condition looks healthy.'],
-  Sedang: ['Jadwalkan pemeriksaan ulang dalam 14 hari.', 'Schedule a re-check within 14 days.'],
-  Tinggi: ['Segera konsultasi ke dokter spesialis.', 'Consult a specialist promptly.'],
+  TidakRujukan: ['Kondisi mulut terlihat sehat.', 'Oral condition looks healthy.'],
+  Rujukan: ['Disarankan konsultasi ke dokter atau spesialis.', 'Consult a dentist or specialist.'],
 };
 
 const RISK_TITLE: Record<RiskLevel, [string, string]> = {
-  Rendah: ['Risiko Rendah', 'Low Risk'],
-  Sedang: ['Perlu Observasi', 'Needs Observation'],
-  Tinggi: ['Indikasi Risiko Tinggi', 'High Risk Indication'],
+  TidakRujukan: ['Tidak Perlu Rujukan', 'No Referral Needed'],
+  Rujukan: ['Perlu Rujukan', 'Referral Recommended'],
 };
 
 export function Riwayat() {
@@ -65,8 +65,8 @@ export function Riwayat() {
   const totals = useMemo(
     () => ({
       total: scans.length,
-      low: scans.filter((s) => s.riskLevel === 'Rendah').length,
-      high: scans.filter((s) => s.riskLevel === 'Tinggi').length,
+      low: scans.filter((s) => levelOf(s) === 'TidakRujukan').length,
+      high: scans.filter((s) => levelOf(s) === 'Rujukan').length,
     }),
     [scans],
   );
@@ -90,8 +90,8 @@ export function Riwayat() {
       {/* Summary tiles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
         <SummaryTile icon={BarChart3} label="TOTAL SCANS" value={totals.total} color="#4648d4" />
-        <SummaryTile icon={CheckCircle2} label="LOW RISK CASES" value={totals.low} color="#006b2d" accent />
-        <SummaryTile icon={AlertTriangle} label="HIGH RISK CASES" value={totals.high} color="#ba1a1a" accent />
+        <SummaryTile icon={CheckCircle2} label="NO REFERRAL" value={totals.low} color="#006b2d" accent />
+        <SummaryTile icon={AlertTriangle} label="NEEDS REFERRAL" value={totals.high} color="#ba1a1a" accent />
       </div>
 
       {/* Mobile filter chips */}
@@ -154,7 +154,7 @@ export function Riwayat() {
                     )}
                   </td>
                   <td className="py-md">
-                    <RiskBadge level={r.riskLevel} variant="en" />
+                    <RiskBadge level={levelOf(r)} variant="en" />
                   </td>
                   <td className="py-md">
                     <Thumb scan={r} />
@@ -220,7 +220,7 @@ function Thumb({ scan }: { scan: ScanRecord }) {
   }
   return (
     <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-      <RiskIcon level={scan.riskLevel} size={18} />
+      <RiskIcon level={levelOf(scan)} size={18} />
     </div>
   );
 }
@@ -228,7 +228,8 @@ function Thumb({ scan }: { scan: ScanRecord }) {
 function MobileRow({ scan, onSelect }: { scan: ScanRecord; onSelect: () => void }) {
   const { t } = useLang();
   const { date, time } = formatDate(scan.createdAt);
-  const color = scan.riskLevel === 'Rendah' ? '#006b2d' : scan.riskLevel === 'Sedang' ? '#b45309' : '#ba1a1a';
+  const level = levelOf(scan);
+  const color = level === 'Rujukan' ? '#ba1a1a' : '#006b2d';
   return (
     <Card className="p-md flex items-center gap-md cursor-pointer" onClick={onSelect}>
       <Thumb scan={scan} />
@@ -237,14 +238,14 @@ function MobileRow({ scan, onSelect }: { scan: ScanRecord; onSelect: () => void 
           {date} • {time}
           {scan.patientName ? ` • ${scan.patientName}` : ''}
         </p>
-        <p className="text-body-lg font-bold text-on-surface">
-          {t(RISK_TITLE[scan.riskLevel][0], RISK_TITLE[scan.riskLevel][1])}
+        <p className="text-body-lg font-bold" style={{ color }}>
+          {t(RISK_TITLE[level][0], RISK_TITLE[level][1])}
         </p>
-        <p className="text-caption font-semibold" style={{ color }}>
-          {t(SHORT_NOTE[scan.riskLevel][0], SHORT_NOTE[scan.riskLevel][1])}
+        <p className="text-caption font-semibold text-on-surface-variant">
+          {t(SHORT_NOTE[level][0], SHORT_NOTE[level][1])}
         </p>
       </div>
-      <RiskIcon level={scan.riskLevel} />
+      <RiskIcon level={level} />
     </Card>
   );
 }
@@ -266,7 +267,7 @@ function ScanDetailModal({ scan, onClose }: { scan: ScanRecord; onClose: () => v
   return (
     <Modal open onClose={onClose} ariaLabel="Detail Pemeriksaan">
       <div className="flex items-center gap-md mb-md pr-lg">
-        <RiskIcon level={scan.riskLevel} size={32} />
+        <RiskIcon level={risk.level} size={32} />
         <div>
           <p className="text-label-md uppercase font-bold" style={{ color: risk.color }}>
             {t('Detail Pemeriksaan', 'Scan Details')}
@@ -307,11 +308,6 @@ function ScanDetailModal({ scan, onClose }: { scan: ScanRecord; onClose: () => v
           className="w-full max-h-56 object-contain rounded-lg border border-outline-variant bg-surface-container mb-md"
         />
       )}
-
-      {/* Score */}
-      <div className="rounded-xl border border-outline-variant p-md mb-md">
-        <ScoreMeter probability={scan.topProbability} color={risk.color} threshold={DECISION_THRESHOLD} />
-      </div>
 
       {/* What to do next */}
       <div

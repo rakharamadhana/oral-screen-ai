@@ -11,20 +11,38 @@ import {
   loadImage,
   type LoadedModel,
   type InferenceOutput,
+  type LoadProgress,
 } from '../lib/inference';
 
 let modelPromise: Promise<LoadedModel> | null = null;
 
-function getModel(): Promise<LoadedModel> {
-  if (!modelPromise) modelPromise = loadModel();
+function getModel(onProgress?: LoadProgress): Promise<LoadedModel> {
+  if (!modelPromise) {
+    // Reset the singleton on failure so a retry actually re-attempts the load
+    // instead of re-throwing a permanently-cached rejection.
+    modelPromise = loadModel(onProgress).catch((e) => {
+      modelPromise = null;
+      throw e;
+    });
+  }
   return modelPromise;
+}
+
+/** Download progress for the model file. `total` is 0 until the size is known. */
+export interface ModelProgress {
+  loaded: number;
+  total: number;
 }
 
 export interface UseOnnxModel {
   ready: boolean;
   loading: boolean;
   error: string | null;
+  /** Bytes downloaded so far for the model, or null before the download starts. */
+  progress: ModelProgress | null;
   config: LoadedModel['config'] | null;
+  /** Re-attempts the load after a failure. */
+  reload: () => void;
   /** Runs inference on an image source (data/object URL). */
   infer: (src: string) => Promise<InferenceOutput>;
   /** Runs inference on a live source (e.g. a <video> frame). */
@@ -36,10 +54,22 @@ export function useOnnxModel(): UseOnnxModel {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<ModelProgress | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  const reload = useCallback(() => {
+    setError(null);
+    setReady(false);
+    setLoading(true);
+    setProgress(null);
+    setAttempt((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    getModel()
+    getModel((loaded, total) => {
+      if (!cancelled) setProgress({ loaded, total });
+    })
       .then((m) => {
         if (cancelled) return;
         modelRef.current = m;
@@ -55,7 +85,7 @@ export function useOnnxModel(): UseOnnxModel {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
 
   const infer = useCallback(async (src: string): Promise<InferenceOutput> => {
     const model = modelRef.current ?? (await getModel());
@@ -70,5 +100,5 @@ export function useOnnxModel(): UseOnnxModel {
     return runInferenceOnSource(model, source);
   }, []);
 
-  return { ready, loading, error, config: modelRef.current?.config ?? null, infer, inferSource };
+  return { ready, loading, error, progress, reload, config: modelRef.current?.config ?? null, infer, inferSource };
 }

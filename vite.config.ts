@@ -22,5 +22,15 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp'
     }
+  },
+  // Mirror the prod isolation headers so `vite preview` reproduces production
+  // (crossOriginIsolated / SharedArrayBuffer) — the dev server alone hides the
+  // production-only ONNX bundling behaviour.
+  preview: {
+    port: 4173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
+    }
   }
 });
