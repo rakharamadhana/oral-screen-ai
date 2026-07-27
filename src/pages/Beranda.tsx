@@ -7,7 +7,7 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { ArticleCard } from '../components/ui/ArticleCard';
 import { ArticleCardSkeleton, Skeleton } from '../components/ui/Skeleton';
 import { RiskIcon } from '../components/ui/RiskBadge';
-import { ARTICLES, SEED_PROFILE, UPCOMING_CHECKUP } from '../lib/mockData';
+import { ARTICLES, EMPTY_PROFILE, UPCOMING_CHECKUP } from '../lib/mockData';
 import { getProfile, listArticles, listScans } from '../lib/repository';
 import { classifyRisk } from '../lib/risk';
 import { useLang, type Lang } from '../lib/i18n';
@@ -25,14 +25,14 @@ export function Beranda() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
   const [scans, setScans] = useState<ScanRecord[]>([]);
-  const [profile, setProfile] = useState<Profile>(SEED_PROFILE);
+  const [profile, setProfile] = useState<Profile>(EMPTY_PROFILE);
   const [articles, setArticles] = useState<Article[]>(ARTICLES);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       listScans().then(setScans).catch(() => setScans([])),
-      getProfile().then(setProfile).catch(() => setProfile(SEED_PROFILE)),
+      getProfile().then(setProfile).catch(() => setProfile(EMPTY_PROFILE)),
       listArticles().then(setArticles).catch(() => setArticles(ARTICLES)),
     ]).finally(() => setLoading(false));
   }, []);

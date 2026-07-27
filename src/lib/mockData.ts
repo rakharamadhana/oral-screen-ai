@@ -30,6 +30,24 @@ export const SEED_PROFILE: Profile = {
   riskFactors: [],
 };
 
+/**
+ * Blank profile used as the initial/loading and error-fallback state for real
+ * users, so a signed-in account never briefly renders the demo persona's name.
+ */
+export const EMPTY_PROFILE: Profile = {
+  id: '',
+  fullName: '',
+  email: '',
+  medicalId: '',
+  phone: '',
+  birthDate: '',
+  memberSince: '',
+  avatarUrl: null,
+  verified: false,
+  notifications: { exams: true, education: true, updates: false },
+  riskFactors: [],
+};
+
 export const UPCOMING_CHECKUP: Checkup = {
   monthLabel: 'MEI',
   day: '24',

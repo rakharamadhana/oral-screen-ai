@@ -25,7 +25,7 @@ import { classifyRisk, type RiskResult } from '../lib/risk';
 import { addScan, generateRefCode, getProfile } from '../lib/repository';
 import { useLang } from '../lib/i18n';
 import type { Profile, ScanRecord } from '../lib/types';
-import { SEED_PROFILE } from '../lib/mockData';
+import { EMPTY_PROFILE } from '../lib/mockData';
 
 // Identity (Data Diri) comes from the profile, risk factors are captured on the
 // Profil page, and the photo instructions are shown once then available via a
@@ -66,13 +66,13 @@ export function Pemeriksaan() {
   const [mode, setMode] = useState<CaptureMode>('upload');
   const [photo, setPhoto] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
-  const [profile, setProfile] = useState<Profile>(SEED_PROFILE);
+  const [profile, setProfile] = useState<Profile>(EMPTY_PROFILE);
   const [result, setResult] = useState<{ risk: RiskResult; photo: string; output: InferenceOutput } | null>(
     null,
   );
 
   useEffect(() => {
-    getProfile().then(setProfile).catch(() => setProfile(SEED_PROFILE));
+    getProfile().then(setProfile).catch(() => setProfile(EMPTY_PROFILE));
   }, []);
 
   const threshold = model.config?.decisionThreshold ?? 0.1973;

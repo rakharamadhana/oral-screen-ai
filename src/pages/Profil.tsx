@@ -23,7 +23,7 @@ import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Modal } from '../components/ui/Modal';
 import { getProfile, saveProfile } from '../lib/repository';
-import { SEED_PROFILE } from '../lib/mockData';
+import { EMPTY_PROFILE } from '../lib/mockData';
 import { useAuth } from '../lib/auth';
 import { useLang } from '../lib/i18n';
 import { RISK_FACTORS, type Profile as ProfileType } from '../lib/types';
@@ -43,14 +43,14 @@ export function Profil() {
     logout();
     navigate('/login', { replace: true });
   };
-  const [profile, setProfile] = useState<ProfileType>(SEED_PROFILE);
+  const [profile, setProfile] = useState<ProfileType>(EMPTY_PROFILE);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getProfile()
       .then(setProfile)
-      .catch(() => setProfile(SEED_PROFILE))
+      .catch(() => setProfile(EMPTY_PROFILE))
       .finally(() => setLoading(false));
   }, []);
 

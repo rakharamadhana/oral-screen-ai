@@ -9,8 +9,10 @@
 // re-attached to scan records on read. Full-resolution photos are never stored.
 
 import { supabase } from './supabase';
-import { SEED_HISTORY, SEED_PROFILE, ARTICLES, getArticleBySlug } from './mockData';
+import { isDemoActive } from './demo';
+import { SEED_HISTORY, SEED_PROFILE, EMPTY_PROFILE, ARTICLES, getArticleBySlug } from './mockData';
 import type { Article, Profile, ScanRecord } from './types';
+import type { User } from '@supabase/supabase-js';
 
 const SCANS_KEY = 'osa:scans:v1';
 const PROFILE_KEY = 'osa:profile:v1';
@@ -41,6 +43,21 @@ function writeLocal(key: string, value: unknown): void {
   } catch {
     /* quota exceeded — ignore in demo */
   }
+}
+
+// ---------- data source ----------
+
+// Use Supabase (per-user) when it's configured AND we're not in the offline demo
+// account. The demo account and the no-backend fallback both read local seed data.
+function useRemote(): boolean {
+  return !!supabase && !isDemoActive();
+}
+
+/** The signed-in Supabase user, or null (demo/offline). Uses the cached session. */
+async function currentUser(): Promise<User | null> {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user ?? null;
 }
 
 // ---------- on-device thumbnail store (never leaves the browser) ----------
@@ -86,15 +103,19 @@ function rowToScan(r: ScanRow): ScanRecord {
 // ---------- scans ----------
 
 export async function listScans(): Promise<ScanRecord[]> {
-  if (supabase) {
-    const { data, error } = await supabase
-      .from('scans')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data as ScanRow[]).map(rowToScan);
+  if (useRemote()) {
+    const user = await currentUser();
+    if (user) {
+      const { data, error } = await supabase!
+        .from('scans')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as ScanRow[]).map(rowToScan);
+    }
   }
-  // localStorage: user scans first (already newest-first), then seed history.
+  // Demo/offline: user scans first (already newest-first), then seed history.
   const local = readLocal<ScanRecord[]>(SCANS_KEY, []);
   return [...local, ...SEED_HISTORY];
 }
@@ -103,21 +124,25 @@ export async function addScan(scan: ScanRecord): Promise<void> {
   // Thumbnail always stays on-device, regardless of backend.
   saveThumb(scan.id, scan.thumbnail);
 
-  if (supabase) {
-    // Send the client-generated uuid so the row id matches the local thumbnail
-    // key (and so patient identity travels with the scan). No image data.
-    const { error } = await supabase.from('scans').insert({
-      id: scan.id,
-      ref_code: scan.refCode,
-      created_at: scan.createdAt,
-      risk_level: scan.riskLevel,
-      top_probability: scan.topProbability,
-      region_results: scan.regionResults,
-      patient_name: scan.patientName ?? null,
-      patient_medical_id: scan.patientMedicalId ?? null,
-    });
-    if (error) throw error;
-    return;
+  if (useRemote()) {
+    const user = await currentUser();
+    if (user) {
+      // Send the client-generated uuid so the row id matches the local thumbnail
+      // key (and so patient identity travels with the scan). No image data.
+      const { error } = await supabase!.from('scans').insert({
+        id: scan.id,
+        user_id: user.id,
+        ref_code: scan.refCode,
+        created_at: scan.createdAt,
+        risk_level: scan.riskLevel,
+        top_probability: scan.topProbability,
+        region_results: scan.regionResults,
+        patient_name: scan.patientName ?? null,
+        patient_medical_id: scan.patientMedicalId ?? null,
+      });
+      if (error) throw error;
+      return;
+    }
   }
   const local = readLocal<ScanRecord[]>(SCANS_KEY, []);
   writeLocal(SCANS_KEY, [scan, ...local]);
@@ -130,47 +155,85 @@ export async function getLatestScan(): Promise<ScanRecord | null> {
 
 // ---------- profile ----------
 
+type ProfileRow = {
+  id: string;
+  full_name: string;
+  email: string | null;
+  medical_id: string | null;
+  phone: string | null;
+  birth_date: string | null;
+  member_since: string | null;
+  avatar_url: string | null;
+  verified: boolean;
+  notifications: Profile['notifications'] | null;
+  risk_factors: string[] | null;
+};
+
+function rowToProfile(r: ProfileRow): Profile {
+  return {
+    id: r.id,
+    fullName: r.full_name,
+    email: r.email ?? '',
+    medicalId: r.medical_id ?? '',
+    phone: r.phone ?? '',
+    birthDate: r.birth_date ?? '',
+    memberSince: r.member_since ?? '',
+    avatarUrl: r.avatar_url,
+    verified: r.verified,
+    notifications: r.notifications ?? SEED_PROFILE.notifications,
+    riskFactors: r.risk_factors ?? [],
+  };
+}
+
+/** Minimal profile derived from the auth user, if their row isn't ready yet. */
+function profileFromAuthUser(user: User): Profile {
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const name =
+    (typeof meta.display_name === 'string' && meta.display_name) ||
+    (typeof meta.full_name === 'string' && meta.full_name) ||
+    user.email?.split('@')[0] ||
+    '';
+  return { ...EMPTY_PROFILE, id: user.id, fullName: name, email: user.email ?? '' };
+}
+
 export async function getProfile(): Promise<Profile> {
-  if (supabase) {
-    const { data, error } = await supabase.from('profiles').select('*').limit(1).maybeSingle();
-    if (error) throw error;
-    if (data) {
-      return {
-        id: data.id,
-        fullName: data.full_name,
-        email: data.email,
-        medicalId: data.medical_id,
-        phone: data.phone ?? '',
-        birthDate: data.birth_date ?? '',
-        memberSince: data.member_since ?? '',
-        avatarUrl: data.avatar_url,
-        verified: data.verified,
-        notifications: data.notifications ?? SEED_PROFILE.notifications,
-        riskFactors: data.risk_factors ?? [],
-      };
+  if (useRemote()) {
+    const user = await currentUser();
+    if (user) {
+      const { data, error } = await supabase!
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      // Row is auto-created by a signup trigger; fall back to auth metadata if it
+      // hasn't propagated yet (never to the demo "Andi" persona).
+      return data ? rowToProfile(data as ProfileRow) : profileFromAuthUser(user);
     }
-    return SEED_PROFILE;
   }
   return readLocal<Profile>(PROFILE_KEY, SEED_PROFILE);
 }
 
 export async function saveProfile(profile: Profile): Promise<void> {
-  if (supabase) {
-    const { error } = await supabase.from('profiles').upsert({
-      id: profile.id,
-      full_name: profile.fullName,
-      email: profile.email,
-      medical_id: profile.medicalId,
-      phone: profile.phone,
-      birth_date: profile.birthDate,
-      member_since: profile.memberSince,
-      avatar_url: profile.avatarUrl,
-      verified: profile.verified,
-      notifications: profile.notifications,
-      risk_factors: profile.riskFactors,
-    });
-    if (error) throw error;
-    return;
+  if (useRemote()) {
+    const user = await currentUser();
+    if (user) {
+      const { error } = await supabase!.from('profiles').upsert({
+        id: user.id, // always the caller's own row (RLS enforces this too)
+        full_name: profile.fullName,
+        email: profile.email,
+        medical_id: profile.medicalId,
+        phone: profile.phone,
+        birth_date: profile.birthDate,
+        member_since: profile.memberSince,
+        avatar_url: profile.avatarUrl,
+        verified: profile.verified,
+        notifications: profile.notifications,
+        risk_factors: profile.riskFactors,
+      });
+      if (error) throw error;
+      return;
+    }
   }
   writeLocal(PROFILE_KEY, profile);
 }

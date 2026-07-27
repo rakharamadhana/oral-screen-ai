@@ -1,15 +1,25 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { SIDEBAR_ITEMS } from './navItems';
-import { SEED_PROFILE } from '../../lib/mockData';
+import { EMPTY_PROFILE } from '../../lib/mockData';
+import { getProfile } from '../../lib/repository';
 import { useAuth } from '../../lib/auth';
 import { useLang } from '../../lib/i18n';
+import type { Profile } from '../../lib/types';
 
 /** Fixed 240px desktop sidebar (hidden below md). */
 export function Sidebar() {
   const { logout } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<Profile>(EMPTY_PROFILE);
+
+  useEffect(() => {
+    getProfile()
+      .then(setProfile)
+      .catch(() => undefined);
+  }, []);
   const onLogout = () => {
     logout();
     navigate('/login', { replace: true });
@@ -46,11 +56,15 @@ export function Sidebar() {
       <div className="px-md pt-md border-t border-outline-variant space-y-md">
         <div className="flex items-center gap-sm">
           <div className="w-10 h-10 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold">
-            {SEED_PROFILE.fullName.charAt(0)}
+            {profile.fullName.charAt(0) || '·'}
           </div>
           <div>
-            <p className="text-label-md font-semibold text-on-surface">{SEED_PROFILE.fullName}</p>
-            <p className="text-[10px] text-on-surface-variant">ID: {SEED_PROFILE.medicalId}</p>
+            <p className="text-label-md font-semibold text-on-surface">
+              {profile.fullName || t('Memuat…', 'Loading…')}
+            </p>
+            {profile.medicalId && (
+              <p className="text-[10px] text-on-surface-variant">ID: {profile.medicalId}</p>
+            )}
           </div>
         </div>
         <button

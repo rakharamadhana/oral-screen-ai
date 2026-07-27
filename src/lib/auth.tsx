@@ -9,10 +9,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
-
-const DEMO_EMAIL = 'user@example.com';
-const DEMO_PASSWORD = 'user123';
-const DEMO_KEY = 'osa:auth:v1';
+import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_KEY } from './demo';
 
 export type AuthResult = { ok: boolean; error?: string; needsConfirmation?: boolean };
 
