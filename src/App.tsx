@@ -42,7 +42,7 @@ export default function App() {
             <Route path="/" element={<Beranda />} />
             <Route path="/pemeriksaan" element={<Pemeriksaan />} />
             <Route path="/edukasi" element={<Edukasi />} />
-            <Route path="/edukasi/:id" element={<ArticleDetail />} />
+            <Route path="/edukasi/:slug" element={<ArticleDetail />} />
             <Route path="/riwayat" element={<Riwayat />} />
             <Route path="/profil" element={<Profil />} />
             <Route path="/bantuan" element={<Bantuan />} />

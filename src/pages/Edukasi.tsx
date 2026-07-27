@@ -67,7 +67,7 @@ export function Edukasi() {
       {/* Featured */}
       {loading && <FeaturedArticleSkeleton />}
       {!loading && featured && (category === 'Semua' || featured.category === category) && (
-        <Link to={`/edukasi/${featured.id}`} className="block group">
+        <Link to={`/edukasi/${featured.slug}`} className="block group">
           <Card className="overflow-hidden grid grid-cols-1 md:grid-cols-2 hover:shadow-md transition-shadow cursor-pointer">
             <div className={`h-56 md:h-auto bg-gradient-to-br ${featured.cover}`} />
             <div className="p-lg flex flex-col justify-center">

@@ -13,7 +13,7 @@ const CATEGORY_CHIP: Record<Article['category'], string> = {
 export function ArticleCard({ article }: { article: Article }) {
   return (
     <Link
-      to={`/edukasi/${article.id}`}
+      to={`/edukasi/${article.slug}`}
       className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow group cursor-pointer flex flex-col"
     >
       <div className={`h-40 bg-gradient-to-br ${article.cover} relative`}>

@@ -9,7 +9,7 @@
 // re-attached to scan records on read. Full-resolution photos are never stored.
 
 import { supabase } from './supabase';
-import { SEED_HISTORY, SEED_PROFILE, ARTICLES, getArticleById } from './mockData';
+import { SEED_HISTORY, SEED_PROFILE, ARTICLES, getArticleBySlug } from './mockData';
 import type { Article, Profile, ScanRecord } from './types';
 
 const SCANS_KEY = 'osa:scans:v1';
@@ -179,6 +179,7 @@ export async function saveProfile(profile: Profile): Promise<void> {
 
 type ArticleRow = {
   id: string;
+  slug: string;
   category: Article['category'];
   title: string;
   excerpt: string;
@@ -191,6 +192,7 @@ type ArticleRow = {
 function rowToArticle(r: ArticleRow): Article {
   return {
     id: r.id,
+    slug: r.slug,
     category: r.category,
     title: r.title,
     excerpt: r.excerpt,
@@ -215,11 +217,11 @@ export async function listArticles(): Promise<Article[]> {
   return ARTICLES;
 }
 
-export async function getArticle(id: string): Promise<Article | undefined> {
+export async function getArticle(slug: string): Promise<Article | undefined> {
   if (supabase) {
-    const { data, error } = await supabase.from('articles').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supabase.from('articles').select('*').eq('slug', slug).maybeSingle();
     if (error) throw error;
     return data ? rowToArticle(data as ArticleRow) : undefined;
   }
-  return getArticleById(id);
+  return getArticleBySlug(slug);
 }

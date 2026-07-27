@@ -10,19 +10,19 @@ import { DEFAULT_ARTICLE_BODY } from '../lib/mockData';
 import type { Article } from '../lib/types';
 
 export function ArticleDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [article, setArticle] = useState<Article | undefined>();
   const [related, setRelated] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
-    Promise.all([getArticle(id), listArticles()])
+    Promise.all([getArticle(slug), listArticles()])
       .then(([found, all]) => {
         if (cancelled) return;
         setArticle(found);
@@ -44,7 +44,7 @@ export function ArticleDetail() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [slug]);
 
   if (loading) {
     return (

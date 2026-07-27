@@ -4,6 +4,16 @@
 
 import type { Article, Checkup, Profile, ScanRecord } from './types';
 
+/** Turns a title into a URL-safe slug, e.g. "Gejala Awal?" -> "gejala-awal". */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '') // strip accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export const SEED_PROFILE: Profile = {
   // Must match the seeded profiles row uuid (supabase/migrations/0003) so
   // saveProfile() upserts target a valid uuid PK and actually persist.
@@ -27,7 +37,9 @@ export const UPCOMING_CHECKUP: Checkup = {
   detail: 'Pukul 09:00 WIB • Klinik Gigi Sehat',
 };
 
-export const ARTICLES: Article[] = [
+// Slugs are derived from the title (see slugify) so the fallback stays in sync
+// with the DB's stored slugs without hand-maintaining them here.
+const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
   {
     id: 'a1',
     category: 'Gejala',
@@ -91,6 +103,8 @@ export const ARTICLES: Article[] = [
   },
 ];
 
+export const ARTICLES: Article[] = RAW_ARTICLES.map((a) => ({ ...a, slug: slugify(a.title) }));
+
 /** Generic body used for articles that don't define their own. */
 export const DEFAULT_ARTICLE_BODY: string[] = [
   'Menjaga kesehatan mulut adalah bagian penting dari kesehatan tubuh secara keseluruhan. Kebiasaan sederhana yang dilakukan secara konsisten dapat memberi dampak besar dalam jangka panjang.',
@@ -98,8 +112,8 @@ export const DEFAULT_ARTICLE_BODY: string[] = [
   'Selalu konsultasikan kondisi spesifik Anda dengan tenaga medis profesional. Informasi di sini bersifat edukatif dan bukan pengganti pemeriksaan langsung.',
 ];
 
-export function getArticleById(id: string): Article | undefined {
-  return ARTICLES.find((a) => a.id === id);
+export function getArticleBySlug(slug: string): Article | undefined {
+  return ARTICLES.find((a) => a.slug === slug);
 }
 
 // A little seed history so Riwayat looks populated on first run. Real scans from

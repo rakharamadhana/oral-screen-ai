@@ -56,6 +56,8 @@ export const RISK_FACTORS = [
 
 export interface Article {
   id: string;
+  /** URL-facing identifier, e.g. "mengenali-gejala-awal-kanker-mulut". */
+  slug: string;
   category: 'Gejala' | 'Pencegahan' | 'Perawatan' | 'Gaya Hidup' | 'Teknologi';
   title: string;
   excerpt: string;
