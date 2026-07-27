@@ -299,31 +299,19 @@ export function drawCAMOverlay(
   ctx.drawImage(temp, 0, 0, width, height);
   ctx.restore();
 
-  // Bounding box around the most-activated region (cells >= 50% of peak) so the
-  // area of interest is clearly localised, not just tinted.
+  // Tight box around the hottest region: the connected component containing the
+  // CAM peak, thresholded high so the rectangle hugs the actual hot spot instead
+  // of spanning scattered secondary activations elsewhere in the grid.
   if (drawBox) {
-    let minR = rows;
-    let minC = cols;
-    let maxR = -1;
-    let maxC = -1;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (heatmap[r][c] >= 0.5) {
-          if (r < minR) minR = r;
-          if (c < minC) minC = c;
-          if (r > maxR) maxR = r;
-          if (c > maxC) maxC = c;
-        }
-      }
-    }
-    if (maxR >= 0) {
-      const x0 = (minC / cols) * width;
-      const y0 = (minR / rows) * height;
-      const x1 = ((maxC + 1) / cols) * width;
-      const y1 = ((maxR + 1) / rows) * height;
+    const bounds = hotComponentBounds(heatmap, CAM_BOX_THRESHOLD);
+    if (bounds) {
+      const x0 = (bounds.minC / cols) * width;
+      const y0 = (bounds.minR / rows) * height;
+      const x1 = ((bounds.maxC + 1) / cols) * width;
+      const y1 = ((bounds.maxR + 1) / rows) * height;
       ctx.save();
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = Math.max(2, width / 110);
+      ctx.lineWidth = Math.max(2, width / 130);
       ctx.lineJoin = 'round';
       ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
       ctx.shadowBlur = 6;
@@ -331,6 +319,67 @@ export function drawCAMOverlay(
       ctx.restore();
     }
   }
+}
+
+/** Activation fraction (of the peak) a cell must reach to be inside the box. */
+const CAM_BOX_THRESHOLD = 0.6;
+
+/**
+ * Bounding box of the connected hot region that contains the CAM peak — cells
+ * whose (min-max normalised) activation is >= `threshold`, flood-filled from the
+ * peak with 8-connectivity. Returns null if nothing clears the threshold.
+ * Restricting to the peak's component keeps the box tight around the main hot
+ * spot rather than enclosing distant secondary activations.
+ */
+function hotComponentBounds(
+  heatmap: number[][],
+  threshold: number,
+): { minR: number; minC: number; maxR: number; maxC: number } | null {
+  const rows = heatmap.length;
+  const cols = heatmap[0].length;
+
+  // Locate the peak cell.
+  let pr = -1;
+  let pc = -1;
+  let best = -Infinity;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (heatmap[r][c] > best) {
+        best = heatmap[r][c];
+        pr = r;
+        pc = c;
+      }
+    }
+  }
+  if (pr < 0 || best < threshold) return null;
+
+  // Flood-fill the peak's connected component (8-connectivity).
+  const seen = Array.from({ length: rows }, () => new Array<boolean>(cols).fill(false));
+  const stack: [number, number][] = [[pr, pc]];
+  seen[pr][pc] = true;
+  let minR = pr;
+  let minC = pc;
+  let maxR = pr;
+  let maxC = pc;
+  while (stack.length) {
+    const [r, c] = stack.pop()!;
+    if (r < minR) minR = r;
+    if (c < minC) minC = c;
+    if (r > maxR) maxR = r;
+    if (c > maxC) maxC = c;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || seen[nr][nc]) continue;
+        if (heatmap[nr][nc] >= threshold) {
+          seen[nr][nc] = true;
+          stack.push([nr, nc]);
+        }
+      }
+    }
+  }
+  return { minR, minC, maxR, maxC };
 }
 
 /** Draws a still image with an optional CAM overlay onto a target canvas. */

@@ -441,14 +441,50 @@ function SinglePhotoUpload({
 }) {
   const { t } = useLang();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const MAX_BYTES = 5 * 1024 * 1024;
+
+  // Shared by the file picker and drag-and-drop: validate then load the image.
+  const acceptFile = (file: File | undefined | null) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError(t('File harus berupa gambar (JPG/PNG).', 'File must be an image (JPG/PNG).'));
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setError(t('Ukuran file melebihi 5MB.', 'File exceeds the 5MB limit.'));
+      return;
+    }
+    setError(null);
+    setPhoto(URL.createObjectURL(file));
+    onCommit?.();
+  };
+
   return (
     <button
       onClick={() => inputRef.current?.click()}
-      className="relative w-full h-72 rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-low hover:border-primary transition-colors flex flex-col items-center justify-center gap-sm overflow-hidden"
+      onDragOver={(e) => {
+        e.preventDefault();
+        if (!dragOver) setDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        // Ignore drags moving over child elements; only clear when leaving the zone.
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+        acceptFile(e.dataTransfer.files?.[0]);
+      }}
+      className={`relative w-full h-72 rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-sm overflow-hidden ${
+        dragOver ? 'border-primary bg-primary/10' : 'border-outline-variant bg-surface-container-low hover:border-primary'
+      }`}
     >
       {photo ? <img src={photo} alt="Foto rongga mulut" className="absolute inset-0 w-full h-full object-cover" /> : null}
       <div
-        className={`relative z-10 flex flex-col items-center gap-sm ${
+        className={`relative z-10 flex flex-col items-center gap-sm text-center px-md ${
           photo ? 'bg-black/40 rounded-lg px-md py-sm text-white' : ''
         }`}
       >
@@ -456,22 +492,26 @@ function SinglePhotoUpload({
           <Upload size={26} />
         </span>
         <span className="text-body-lg font-bold">
-          {photo ? t('Ganti foto', 'Change photo') : t('Ketuk untuk memilih foto', 'Tap to choose a photo')}
+          {photo
+            ? t('Ganti foto', 'Change photo')
+            : dragOver
+              ? t('Lepaskan untuk mengunggah', 'Drop to upload')
+              : t('Ketuk atau seret foto ke sini', 'Tap or drag a photo here')}
         </span>
-        <span className="text-caption opacity-90">{t('Maksimal ukuran file 5MB (JPG/PNG)', 'Max file size 5MB (JPG/PNG)')}</span>
+        {error ? (
+          <span className="text-caption font-semibold text-error">{error}</span>
+        ) : (
+          <span className="text-caption opacity-90">
+            {t('Maksimal ukuran file 5MB (JPG/PNG)', 'Max file size 5MB (JPG/PNG)')}
+          </span>
+        )}
       </div>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            setPhoto(URL.createObjectURL(file));
-            onCommit?.();
-          }
-        }}
+        onChange={(e) => acceptFile(e.target.files?.[0])}
       />
     </button>
   );

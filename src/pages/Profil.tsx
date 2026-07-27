@@ -25,8 +25,9 @@ import { Modal } from '../components/ui/Modal';
 import { getProfile, saveProfile } from '../lib/repository';
 import { EMPTY_PROFILE } from '../lib/mockData';
 import { useAuth } from '../lib/auth';
-import { useLang } from '../lib/i18n';
+import { useLang, type Lang } from '../lib/i18n';
 import { RISK_FACTORS, type Profile as ProfileType } from '../lib/types';
+import { COUNTRIES, parsePhone, formatPhone } from '../lib/countries';
 
 const RISK_FACTOR_EN: Record<string, string> = {
   'Perokok aktif': 'Active smoker',
@@ -34,6 +35,19 @@ const RISK_FACTOR_EN: Record<string, string> = {
   'Riwayat keluarga kanker mulut': 'Family history of oral cancer',
   'Luka mulut > 2 minggu': 'Mouth sore > 2 weeks',
 };
+
+/** Format a stored yyyy-mm-dd birth date for display; falls back to raw/empty. */
+function formatBirthDate(value: string, lang: Lang): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return value || '—';
+  // Build in local time (avoids a UTC off-by-one day) then localise.
+  const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return date.toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 export function Profil() {
   const { logout } = useAuth();
@@ -122,8 +136,8 @@ export function Profil() {
         {/* Data pribadi */}
         <SettingsCard icon={User} title={t('Data Pribadi', 'Personal Data')}>
           <Row label={t('Nama Lengkap', 'Full Name')} value={profile.fullName} />
-          <Row label={t('Tanggal Lahir', 'Date of Birth')} value={profile.birthDate} />
-          <Row label={t('Nomor Telepon', 'Phone Number')} value={profile.phone} />
+          <Row label={t('Tanggal Lahir', 'Date of Birth')} value={formatBirthDate(profile.birthDate, lang)} />
+          <Row label={t('Nomor Telepon', 'Phone Number')} value={profile.phone || '—'} />
         </SettingsCard>
 
         {/* Keamanan */}
@@ -235,7 +249,10 @@ export function Profil() {
       </div>
 
       <p className="text-caption text-on-surface-variant text-center pt-sm">
-        {t('Oral Screen AI v2.4.0 — Dibuat dengan presisi medis.', 'Oral Screen AI v2.4.0 — Built with medical precision.')}
+        {t(
+          `Oral Screen AI v${__APP_VERSION__} — Dibuat dengan presisi medis.`,
+          `Oral Screen AI v${__APP_VERSION__} — Built with medical precision.`,
+        )}
       </p>
 
       {editing && (
@@ -287,8 +304,14 @@ function EditProfileModal({
         <TextField label={t('Nama Lengkap', 'Full Name')} value={form.fullName} onChange={(v) => set('fullName', v)} />
         <TextField label="Email" type="email" value={form.email} onChange={(v) => set('email', v)} />
         <TextField label={t('ID Pasien', 'Patient ID')} value={form.medicalId} onChange={(v) => set('medicalId', v)} />
-        <TextField label={t('Tanggal Lahir', 'Date of Birth')} value={form.birthDate} onChange={(v) => set('birthDate', v)} />
-        <TextField label={t('Nomor Telepon', 'Phone Number')} value={form.phone} onChange={(v) => set('phone', v)} />
+        <TextField
+          label={t('Tanggal Lahir', 'Date of Birth')}
+          type="date"
+          max={new Date().toISOString().slice(0, 10)}
+          value={form.birthDate}
+          onChange={(v) => set('birthDate', v)}
+        />
+        <PhoneField label={t('Nomor Telepon', 'Phone Number')} value={form.phone} onChange={(v) => set('phone', v)} />
       </div>
 
       {error && <p className="text-caption text-error mt-sm">{error}</p>}
@@ -316,11 +339,13 @@ function TextField({
   value,
   onChange,
   type = 'text',
+  max,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
+  max?: string;
 }) {
   return (
     <label className="block">
@@ -328,9 +353,51 @@ function TextField({
       <input
         type={type}
         value={value}
+        max={max}
         onChange={(e) => onChange(e.target.value)}
         className="w-full h-11 px-md rounded-lg border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:outline-none"
       />
+    </label>
+  );
+}
+
+/** Phone input with a country dial-code selector; stores "<dial> <number>". */
+function PhoneField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { dial, local } = parsePhone(value);
+  return (
+    <label className="block">
+      <span className="block text-caption text-on-surface-variant mb-xs">{label}</span>
+      <div className="flex gap-xs">
+        <select
+          value={dial}
+          onChange={(e) => onChange(formatPhone(e.target.value, local))}
+          aria-label="Country code"
+          className="h-11 w-28 shrink-0 px-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:outline-none"
+        >
+          {COUNTRIES.map((c) => (
+            <option key={c.iso} value={c.dial}>
+              {c.flag} {c.dial} · {c.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel-national"
+          value={local}
+          onChange={(e) => onChange(formatPhone(dial, e.target.value))}
+          placeholder="812 3456 7890"
+          className="flex-1 min-w-0 h-11 px-md rounded-lg border border-outline-variant bg-surface-container-lowest text-body-md text-on-surface focus:border-primary focus:outline-none"
+        />
+      </div>
     </label>
   );
 }
