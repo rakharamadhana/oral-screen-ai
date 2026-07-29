@@ -39,6 +39,38 @@ export interface LoadedModel {
 
 const MODELS_BASE = 'assets/models';
 
+/**
+ * Last-resort decision threshold, used ONLY if model_config.json cannot be
+ * fetched. The real value always comes from the loaded config; this literal
+ * just keeps triage classification defined during the brief load / on failure.
+ * Keep it in sync with model_config.json's decisionThreshold on each retrain.
+ */
+export const FALLBACK_DECISION_THRESHOLD = 0.12808673083782196;
+
+// Caches the parsed model_config.json so lightweight consumers (history, home)
+// can read the calibrated threshold without downloading the 25 MB ONNX session.
+let configPromise: Promise<ModelConfig> | null = null;
+
+/**
+ * Fetches (and caches) just the tiny model_config.json. Lets pages that only
+ * need config-derived facts — e.g. the decision threshold to classify stored
+ * scans — avoid instantiating the full WASM session.
+ */
+export function loadModelConfig(): Promise<ModelConfig> {
+  if (!configPromise) {
+    configPromise = fetch(`${MODELS_BASE}/model_config.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`model_config.json missing (HTTP ${r.status})`);
+        return r.json() as Promise<ModelConfig>;
+      })
+      .catch((e) => {
+        configPromise = null; // let a later call retry instead of caching the failure
+        throw e;
+      });
+  }
+  return configPromise;
+}
+
 /** Reports model-download progress. `total` is 0 when the length is unknown. */
 export type LoadProgress = (loaded: number, total: number) => void;
 
@@ -102,10 +134,7 @@ export async function loadModel(onProgress?: LoadProgress): Promise<LoadedModel>
   // live detection stays responsive without the proxy.
   ort.env.wasm.proxy = false;
 
-  const config: ModelConfig = await fetch(`${MODELS_BASE}/model_config.json`).then((r) => {
-    if (!r.ok) throw new Error(`model_config.json missing (HTTP ${r.status})`);
-    return r.json();
-  });
+  const config: ModelConfig = await loadModelConfig();
 
   // CAM weights are optional -- without them the overlay is skipped, never faked.
   let fcWeights: Float32Array | null = null;

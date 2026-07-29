@@ -20,7 +20,12 @@ import { RiskIcon } from '../components/ui/RiskBadge';
 import { LiveInference } from '../components/scan/LiveInference';
 import { CameraCapture } from '../components/scan/CameraCapture';
 import { useOnnxModel, type ModelProgress } from '../hooks/useOnnxModel';
-import { renderCAMToCanvas, loadImage, type InferenceOutput } from '../lib/inference';
+import {
+  renderCAMToCanvas,
+  loadImage,
+  FALLBACK_DECISION_THRESHOLD,
+  type InferenceOutput,
+} from '../lib/inference';
 import { classifyRisk, type RiskResult } from '../lib/risk';
 import { addScan, generateRefCode, getProfile } from '../lib/repository';
 import { useLang } from '../lib/i18n';
@@ -75,7 +80,7 @@ export function Pemeriksaan() {
     getProfile().then(setProfile).catch(() => setProfile(EMPTY_PROFILE));
   }, []);
 
-  const threshold = model.config?.decisionThreshold ?? 0.1973;
+  const threshold = model.config?.decisionThreshold ?? FALLBACK_DECISION_THRESHOLD;
 
   // Shared finaliser: classify, persist to history, show the result screen.
   const commitResult = async (photoUrl: string, output: InferenceOutput) => {

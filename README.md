@@ -110,10 +110,10 @@ A quantized **ResNeSt-50** binary referral classifier, run on-device. Assets liv
 
 Key facts (from `model_config.json` + the ONNX graph):
 
-- **Input:** `input_image`, shape `[1, 3, 384, 384]` (full square resize, no crop)
-- **Outputs:** `logits` `[1, 1]` and `features` `[1, 2048, 12, 12]`
+- **Input:** `input_image`, shape `[1, 3, 224, 224]` (full square resize, no crop; size from `imgSize`)
+- **Outputs:** `logits` `[1, 1]` and `features` `[1, 2048, 7, 7]`
 - **Probability:** `sigmoid(logits[0])` = P(PERLU RUJUKAN)
-- **Decision threshold:** `0.1973` (tuned for high sensitivity; read from config)
+- **Decision threshold:** `0.1281` (tuned for high sensitivity; read from config)
 - **Grad-CAM:** `ReLU(Σ fc_weights · features)`, min-max normalized
 
 Training is done in a **separate project** (`../oral-disease-detector`); this app only

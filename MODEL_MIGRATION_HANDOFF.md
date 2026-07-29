@@ -1,5 +1,17 @@
 # Model Migration Handoff — ResNet50 → ResNeSt-50
 
+> ⚠️ **SUPERSEDED — historical record only.** This migration is complete. The
+> app already runs the ResNeSt-50 oral-referral model fully config-driven: the
+> inference math lives in `src/lib/inference.ts` (not the long-gone
+> `src/components/OralDiseaseDetector.tsx` this doc refers to), input size / CAM
+> grid / decision threshold all come from `model_config.json` at runtime, and no
+> code edit is needed on a retrain. The "What's left to do" steps below are DONE
+> and describe files that no longer exist — kept for provenance only.
+>
+> The **Model facts** table below has been updated to the **current** retrained
+> model (2026-07-29 retrain: 224px, threshold 0.1281, 7×7 features, AUC 0.908).
+> For the authoritative values always read `public/assets/models/model_config.json`.
+
 **Purpose:** Wire this Ionic app to the new ResNeSt-50 oral-referral model. The
 model assets are already copied in; the remaining work is updating the React
 component + locales. Pick up from **"What's left to do."**
@@ -13,7 +25,7 @@ component + locales. Pick up from **"What's left to do."**
 
 The app currently runs an **obsolete model** (ResNet50, benign/malignant, 224px,
 threshold 0.62, fake heatmap). It must be switched to the **new model**
-(ResNeSt-50, referral classes, 384px, threshold 0.1973, real Grad-CAM).
+(ResNeSt-50, referral classes, 224px, threshold 0.1281, real Grad-CAM).
 
 **Do NOT rewrite the component from scratch.** Keep all existing features
 (camera, live scan, i18n, theming, consent). Only swap the model wiring.
@@ -38,12 +50,14 @@ threshold 0.62, fake heatmap). It must be switched to the **new model**
 |---|---|
 | Model file | `assets/models/oral_referral_resnest50d_quant.onnx` |
 | Input tensor name | `input_image` |
-| Input shape | `[1, 3, 384, 384]` (NOT 224) |
-| Preprocessing | **full square resize** to 384×384, no center crop |
+| Input shape | `[1, 3, 224, 224]` (imgSize from config) |
+| Preprocessing | **full square resize** to 224×224, no center crop |
 | mean / std | `[0.485,0.456,0.406]` / `[0.229,0.224,0.225]` |
-| Outputs | `logits` `[1,1]`  **and**  `features` `[1,2048,12,12]` |
+| Outputs | `logits` `[1,1]`  **and**  `features` `[1,2048,7,7]` |
 | Prob | `sigmoid(logits[0])` = P(PERLU RUJUKAN) |
-| Threshold | **0.19726701080799103** (load from config; never hardcode) |
+| Threshold | **0.12808673083782196** (load from config; never hardcode) |
+| Test AUC | **0.9077** (informational; was 0.9813) |
+| TTA at training | `false` |
 | Positive class | `PERLU RUJUKAN` (label 1) |
 | Negative class | `TIDAK PERLU RUJUKAN` (label 0) |
 
@@ -77,7 +91,7 @@ numbers are approximate — search for the strings.
   (or derive from `cfg.architecture`).
 
 - **Preprocessing — BOTH paths** (photo ~line 611–672, live ~line 453–513):
-  every hardcoded `224` → `cfg.imgSize` (384). Canvas is `drawImage(src, 0, 0, S, S)`
+  every hardcoded size → `cfg.imgSize` (currently 224). Canvas is `drawImage(src, 0, 0, S, S)`
   (already a full square resize — good, matches training). Tensor shape
   `[1, 3, S, S]`.
 
@@ -91,7 +105,7 @@ numbers are approximate — search for the strings.
 - **Real Grad-CAM** — replace the fake Gaussian (search `results.conv_out`,
   and the `prob >= 0.62 ? ... : ...` blob at ~541, ~748):
   ```ts
-  // results.features.dims = [1, 2048, H, W] (H=W=12)
+  // results.features.dims = [1, 2048, H, W] (H=W=7; read from dims, never hardcode)
   // CAM[y][x] = ReLU( Σ_c fcWeights[c] * features[c][y][x] ), then min-max normalise
   ```
   Reference implementation already written and verified in
@@ -124,7 +138,7 @@ benign/malignant wording. Replace with referral wording, e.g.:
 
 ## Decision needed before starting
 
-**Live-scan path.** Per-frame classification at 384px on a mid-range phone is
+**Live-scan path.** Per-frame classification at 224px on a mid-range phone is
 slow (~1–2 s/frame in WASM) and will strobe between classes. Options:
 - **(a)** Update both photo-scan and live-scan to the new model as-is.
 - **(b, recommended)** Update photo-scan properly; gate live-scan behind a
@@ -166,9 +180,9 @@ If the model fails to load into WASM memory on Android, add
 
 ## Gotchas
 
-- **384, not 224.** A leftover 224 anywhere = wrong tensor shape or garbage output.
+- **Input size comes from `cfg.imgSize` (currently 224).** Any hardcoded size = wrong tensor shape on the next retrain.
 - **Threshold from config.** The old 0.62 was fabricated from a synthetic run;
-  the real value is 0.1973 (tuned for high sensitivity — expect more positives).
+  the real value is 0.1281 (tuned for high sensitivity — expect more positives).
 - **CAM needs `results.features`**, not `results.conv_out`. Different name.
 - **Don't gzip the .onnx** in any build step — it's already compressed.
 - The model is a **rule-out / triage aid**, not a diagnosis. Keep the consent

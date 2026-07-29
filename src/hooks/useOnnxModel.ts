@@ -6,10 +6,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   loadModel,
+  loadModelConfig,
   runInference,
   runInferenceOnSource,
   loadImage,
   type LoadedModel,
+  type ModelConfig,
   type InferenceOutput,
   type LoadProgress,
 } from '../lib/inference';
@@ -47,6 +49,30 @@ export interface UseOnnxModel {
   infer: (src: string) => Promise<InferenceOutput>;
   /** Runs inference on a live source (e.g. a <video> frame). */
   inferSource: (source: CanvasImageSource) => Promise<InferenceOutput>;
+}
+
+/**
+ * Loads only the tiny model_config.json (not the 25 MB session). Pages that
+ * just need config-derived facts — e.g. the decision threshold to classify
+ * stored scans — use this instead of `useOnnxModel` so the home/history views
+ * never trigger the heavy model download. Returns null until config resolves.
+ */
+export function useModelConfig(): ModelConfig | null {
+  const [config, setConfig] = useState<ModelConfig | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadModelConfig()
+      .then((c) => {
+        if (!cancelled) setConfig(c);
+      })
+      .catch(() => {
+        // Config unavailable — consumers fall back to FALLBACK_DECISION_THRESHOLD.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return config;
 }
 
 export function useOnnxModel(): UseOnnxModel {

@@ -3,8 +3,8 @@
 //
 // The model outputs P(PERLU RUJUKAN) per image. A scan uploads several regions;
 // the MOST concerning region drives triage, so we aggregate with `max`. The
-// verdict is anchored on the calibrated decision threshold (~0.1973 from
-// model_config.json): at/above the threshold => referral recommended.
+// verdict is anchored on the calibrated decision threshold (read from
+// model_config.json at runtime): at/above the threshold => referral recommended.
 
 export type RiskLevel = 'TidakRujukan' | 'Rujukan';
 

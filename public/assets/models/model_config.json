@@ -4,8 +4,8 @@
     "PERLU RUJUKAN"
   ],
   "positiveClass": "PERLU RUJUKAN",
-  "decisionThreshold": 0.19726701080799103,
-  "imgSize": 384,
+  "decisionThreshold": 0.12808673083782196,
+  "imgSize": 224,
   "mean": [
     0.485,
     0.456,
@@ -17,7 +17,7 @@
     0.225
   ],
   "architecture": "resnest50d",
-  "testAuc": 0.9813333333333333,
+  "testAuc": 0.9077333333333334,
   "preprocessing": "resize_square",
-  "ttaAtTraining": true
+  "ttaAtTraining": false
 }

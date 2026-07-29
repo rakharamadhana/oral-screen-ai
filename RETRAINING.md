@@ -86,12 +86,12 @@ hardcodes them in [`src/lib/inference.ts`](src/lib/inference.ts) around lines
 {
   "classNames": ["TIDAK PERLU RUJUKAN", "PERLU RUJUKAN"],
   "positiveClass": "PERLU RUJUKAN",
-  "decisionThreshold": 0.1973,   // sensitivity knob — read at runtime, never hardcoded
-  "imgSize": 384,                // input resolution; preprocessing follows this
+  "decisionThreshold": 0.1281,   // sensitivity knob — read at runtime, never hardcoded
+  "imgSize": 224,                // input resolution; preprocessing follows this
   "mean": [0.485, 0.456, 0.406], // normalization (must match training)
   "std":  [0.229, 0.224, 0.225],
   "architecture": "resnest50d",  // drives the .onnx filename (Rule 1)
-  "testAuc": 0.981               // informational
+  "testAuc": 0.908               // informational
 }
 ```
 
@@ -118,7 +118,7 @@ Copy the 3 outputs from there into this app's `public/assets/models/`.
 This app is a **triage aid, not a diagnosis**. After retraining:
 
 - **Re-tune the decision threshold** and write the chosen value into
-  `model_config.json`. The old 0.1973 was tuned for high sensitivity.
+  `model_config.json`. The current 0.1281 was tuned for high sensitivity.
 - **Re-measure** sensitivity / specificity / AUC on a held-out test set (the
   training project has report generators, e.g. `Laporan_Performa_Model`).
 - **Sanity-check parity**: score a few known images in the browser and confirm
