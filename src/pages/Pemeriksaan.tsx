@@ -11,6 +11,7 @@ import {
   Loader2,
   ArrowRight,
   RotateCcw,
+  ShieldCheck,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -43,6 +44,16 @@ const STEPS: [string, string][] = [
 
 // Shown automatically the first time, then only on demand via the Tips button.
 const SEEN_TIPS_KEY = 'osa:seen-scan-tips:v1';
+
+// First-run legal consent: the user must accept the Terms of Service and Privacy
+// Policy before their first examination. Device-scoped; bump the version suffix
+// to force everyone to re-consent (e.g. after the terms change).
+const CONSENT_KEY = 'osa:consent-accepted:v1';
+
+// Legal document URLs come from .env (VITE_-prefixed so they reach the client).
+// Change them freely there; fall back to '#' when unset so links stay harmless.
+const TERMS_URL = (import.meta.env.VITE_TERMS_URL as string | undefined) || '#';
+const PRIVACY_URL = (import.meta.env.VITE_PRIVACY_URL as string | undefined) || '#';
 
 const GUIDANCE: [string, string][] = [
   ['Cari ruangan dengan cahaya alami yang terang.', 'Find a room with bright, natural light.'],
@@ -126,6 +137,21 @@ export function Pemeriksaan() {
     setStep(0);
   };
 
+  // First-run gate: require accepting the Terms of Service + Privacy Policy
+  // before anything in the scan flow renders.
+  const [consented, setConsented] = useState(() => localStorage.getItem(CONSENT_KEY) === 'true');
+  if (!consented) {
+    return (
+      <ConsentGate
+        onAgree={() => {
+          localStorage.setItem(CONSENT_KEY, 'true');
+          setConsented(true);
+        }}
+        onDecline={() => navigate('/')}
+      />
+    );
+  }
+
   return (
     <div>
       {/* Full-screen overlay while the ~25 MB model downloads on first use. */}
@@ -169,6 +195,65 @@ export function Pemeriksaan() {
       {step === 2 && result && (
         <SelesaiStep result={result} onReset={reset} onHistory={() => navigate('/riwayat')} />
       )}
+    </div>
+  );
+}
+
+// ---------- first-run consent gate ----------
+
+function ConsentGate({ onAgree, onDecline }: { onAgree: () => void; onDecline: () => void }) {
+  const { t } = useLang();
+  const [checked, setChecked] = useState(false);
+
+  const linkClass = 'text-primary font-semibold underline underline-offset-2 hover:opacity-80';
+
+  return (
+    <div className="max-w-lg mx-auto">
+      <Card className="p-md md:p-lg">
+        <div className="flex items-start gap-sm mb-md">
+          <ShieldCheck size={26} className="text-primary shrink-0" />
+          <div>
+            <h4 className="text-headline-md font-semibold text-on-surface">
+              {t('Sebelum Memulai', 'Before You Begin')}
+            </h4>
+            <p className="text-body-md text-on-surface-variant mt-xs">
+              {t(
+                'Untuk menggunakan Pemeriksaan Saya, Anda perlu menyetujui ketentuan berikut. Anda hanya perlu melakukannya sekali.',
+                'To use My Examination, you need to accept the following. You only have to do this once.',
+              )}
+            </p>
+          </div>
+        </div>
+
+        <label className="flex items-start gap-sm cursor-pointer bg-surface-container-low rounded-xl p-md">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => setChecked(e.target.checked)}
+            className="mt-1 h-5 w-5 shrink-0 accent-primary cursor-pointer"
+          />
+          <span className="text-body-md text-on-surface">
+            {t('Saya telah membaca dan menyetujui ', 'I have read and agree to the ')}
+            <a href={TERMS_URL} target="_blank" rel="noopener noreferrer" className={linkClass}>
+              {t('Ketentuan Layanan', 'Terms of Service')}
+            </a>
+            {t(' dan ', ' and ')}
+            <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer" className={linkClass}>
+              {t('Kebijakan Privasi', 'Privacy Policy')}
+            </a>
+            {t('.', '.')}
+          </span>
+        </label>
+
+        <div className="flex items-center justify-between gap-sm mt-lg">
+          <Button variant="outline" onClick={onDecline}>
+            {t('Kembali', 'Back')}
+          </Button>
+          <Button onClick={onAgree} disabled={!checked}>
+            {t('Setuju & Lanjutkan', 'Agree & Continue')} <ArrowRight size={18} />
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }
