@@ -32,6 +32,8 @@ import { addScan, generateRefCode, getProfile } from '../lib/repository';
 import { useLang } from '../lib/i18n';
 import type { Profile, ScanRecord } from '../lib/types';
 import { EMPTY_PROFILE } from '../lib/mockData';
+import { getAssetUrl } from '../lib/supabase';
+
 
 // Identity (Data Diri) comes from the profile, risk factors are captured on the
 // Profil page, and the photo instructions are shown once then available via a
@@ -490,7 +492,7 @@ function ContohHasilFoto() {
         {['ok-01.jpeg', 'ok-02.jpeg', 'ok-03.jpeg'].map((f) => (
           <img
             key={f}
-            src={`/assets/samples/${f}`}
+            src={getAssetUrl(`/assets/samples/${f}`)}
             alt={t('Contoh foto yang benar', 'Example of a good photo')}
             className="h-20 w-full object-cover rounded-lg border border-tertiary/40"
           />
@@ -506,7 +508,7 @@ function ContohHasilFoto() {
         {['bad-01.jpeg', 'bad-02.png'].map((f) => (
           <img
             key={f}
-            src={`/assets/samples/${f}`}
+            src={getAssetUrl(`/assets/samples/${f}`)}
             alt={t('Contoh foto yang salah', 'Example of a bad photo')}
             className="h-24 w-full object-cover rounded-lg border border-error/40"
           />

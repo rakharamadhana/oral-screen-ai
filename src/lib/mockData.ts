@@ -3,6 +3,8 @@
 // images (which COEP would block) — swap for real assets later.
 
 import type { Article, Checkup, Profile, ScanRecord } from './types';
+import { getAssetUrl } from './supabase';
+
 
 /** Turns a title into a URL-safe slug, e.g. "Gejala Awal?" -> "gejala-awal". */
 export function slugify(text: string): string {
@@ -66,10 +68,10 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
       'Kanker mulut adalah keganasan pada jaringan rongga mulut. Ketahui gambaran umum, data insiden, dan alasan mengapa deteksi dini sangat menentukan keberhasilan terapi.',
     readMinutes: 6,
     featured: true,
-    cover: '/articles/image1.jpeg',
+    cover: getAssetUrl('/articles/image1.jpeg'),
     images: [
       {
-        url: '/articles/image2.jpeg',
+        url: getAssetUrl('/articles/image2.jpeg'),
         caption: 'Gambar 2. Data Insiden dan Mortalitas Kanker Mulut Secara Global (IARC / WHO)',
       },
     ],
@@ -95,7 +97,7 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
     excerpt:
       'Beberapa faktor utama seperti penggunaan tembakau, konsumsi alkohol, infeksi HPV, hingga kebersihan mulut dapat meningkatkan risiko terjadinya kanker mulut.',
     readMinutes: 5,
-    cover: '/articles/image4.png',
+    cover: getAssetUrl('/articles/image4.png'),
     body: [
       'Beberapa faktor yang terbukti meningkatkan risiko terjadinya kanker mulut meliputi penggunaan tembakau, konsumsi alkohol, infeksi virus tertentu, serta faktor kebersihan mulut.',
       '1. Penggunaan Tembakau: Rokok, cerutu, dan tembakau kunyah merupakan faktor risiko terbesar yang berhubungan dengan terjadinya Oral Squamous Cell Carcinoma (OSCC).',
@@ -119,7 +121,7 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
     excerpt:
       'Pahami jenis-jenis kelainan mukosa mulut seperti Leukoplakia, Eritroplakia, dan Lichen Planus yang berpotensi berkembang menjadi kanker.',
     readMinutes: 7,
-    cover: '/articles/image3.png',
+    cover: getAssetUrl('/articles/image3.png'),
     body: [
       'OPMD (Oral Potentially Malignant Disorders) merupakan kelompok kelainan mukosa mulut yang memiliki kemungkinan berkembang menjadi kanker apabila tidak dipantau secara berkala.',
       'Jenis OPMD yang paling sering ditemukan meliputi:',
@@ -144,7 +146,7 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
     excerpt:
       'Langkah-langkah sederhana melakukan pemeriksaan mandiri di rumah setiap bulan untuk mengenali perubahan pada jaringan mulut sejak dini.',
     readMinutes: 4,
-    cover: '/articles/samuri_guide_cover.jpg',
+    cover: getAssetUrl('/articles/samuri_guide_cover.jpg'),
     body: [
       'Lakukan pemeriksaan mandiri rongga mulut setiap bulan di depan cermin dengan pencahayaan yang cukup terang.',
       'Area yang perlu diperiksa meliputi: bibir, pipi bagian dalam, gusi, lidah bagian atas, sisi kanan dan kiri lidah, bagian bawah lidah, dasar mulut, serta langit-langit mulut.',
@@ -165,7 +167,7 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
     excerpt:
       'Pelajari panduan pengambil foto rongga mulut yang optimal dan bagaimana kecerdasan buatan membantu melakukan triase risiko.',
     readMinutes: 5,
-    cover: '/articles/image5.png',
+    cover: getAssetUrl('/articles/image5.png'),
     body: [
       'Oral Screen AI merupakan platform skrining berbasis Artificial Intelligence (AI) yang membantu mengidentifikasi kemungkinan adanya lesi potensial ganas pada foto rongga mulut.',
       'Alur Kerja Sistem: (1) Pengguna mengunggah foto rongga mulut; (2) AI melakukan analisis gambar; (3) Sistem mengenali pola yang menyerupai OPMD atau kanker mulut; (4) Pengguna memperoleh hasil berupa tingkat risiko; (5) Pengguna dengan risiko perlu rujukan dianjurkan berkonsultasi ke dokter gigi spesialis penyakit mulut.',
@@ -186,7 +188,7 @@ const RAW_ARTICLES: Omit<Article, 'slug'>[] = [
     excerpt:
       'Pencegahan primer dan pola hidup sehat merupakan strategi paling efektif untuk menjaga kesehatan jaringan rongga mulut.',
     readMinutes: 5,
-    cover: '/articles/prevention_lifestyle_cover.jpg',
+    cover: getAssetUrl('/articles/prevention_lifestyle_cover.jpg'),
     body: [
       'Risiko kanker mulut dapat dikurangi secara signifikan dengan menerapkan langkah-langkah pencegahan primer dan pola hidup sehat.',
       'Langkah-langkah pencegahan meliputi:',
