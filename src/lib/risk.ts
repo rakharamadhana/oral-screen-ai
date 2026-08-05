@@ -39,7 +39,7 @@ const COPY: Record<RiskLevel, { color: string; label: string; labelEn: string; a
     label: 'Perlu Rujukan',
     labelEn: 'Referral Recommended',
     advice:
-      'foto menunjukkan gejala yang sebaiknya diperiksa oleh dokter gigi spesialis penyakit mulut.  Hasil ini merupakan deteksi dini, bukan diagnosis akhir.',
+      'Foto menunjukkan gejala yang sebaiknya diperiksa oleh dokter gigi spesialis penyakit mulut. Hasil ini merupakan deteksi dini, bukan diagnosis akhir.',
     adviceEn:
       'The image shows features that should be examined by a specialist in oral medicine. This result is early detection, not a final diagnosis.',
   },
