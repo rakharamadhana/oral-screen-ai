@@ -9,14 +9,22 @@ const CATEGORY_CHIP: Record<Article['category'], string> = {
   Teknologi: 'bg-secondary-fixed text-on-secondary-fixed-variant',
 };
 
-/** Education article card with a gradient placeholder cover. */
 export function ArticleCard({ article }: { article: Article }) {
+  const isImageCover = article.cover.startsWith('/') || article.cover.startsWith('http');
+
   return (
     <Link
       to={`/edukasi/${article.slug}`}
       className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-md transition-shadow group cursor-pointer flex flex-col"
     >
-      <div className={`h-40 bg-gradient-to-br ${article.cover} relative`}>
+      <div className={`h-40 ${isImageCover ? 'bg-surface-container-high' : `bg-gradient-to-br ${article.cover}`} relative overflow-hidden`}>
+        {isImageCover && (
+          <img
+            src={article.cover}
+            alt={article.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        )}
         <span
           className={`absolute top-sm left-sm text-[10px] px-sm py-xs rounded font-bold uppercase ${
             CATEGORY_CHIP[article.category]

@@ -66,30 +66,43 @@ export function Edukasi() {
 
       {/* Featured */}
       {loading && <FeaturedArticleSkeleton />}
-      {!loading && featured && (category === 'Semua' || featured.category === category) && (
-        <Link to={`/edukasi/${featured.slug}`} className="block group">
-          <Card className="overflow-hidden grid grid-cols-1 md:grid-cols-2 hover:shadow-md transition-shadow cursor-pointer">
-            <div className={`h-56 md:h-auto bg-gradient-to-br ${featured.cover}`} />
-            <div className="p-lg flex flex-col justify-center">
-              <span className="self-start bg-tertiary text-on-tertiary text-[10px] px-sm py-xs rounded font-bold uppercase mb-sm">
-                Utama
-              </span>
-              <h4 className="text-headline-md md:text-display-lg-mobile font-bold text-on-surface mb-sm">
-                {featured.title}
-              </h4>
-              <p className="text-body-md text-on-surface-variant mb-md">{featured.excerpt}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-caption text-on-surface-variant flex items-center gap-xs">
-                  <Clock size={14} /> {featured.readMinutes} mnt baca
-                </span>
-                <span className="text-label-md font-semibold text-primary flex items-center gap-xs group-hover:underline">
-                  Baca Selengkapnya <ArrowRight size={14} />
-                </span>
+      {!loading && featured && (category === 'Semua' || featured.category === category) && (() => {
+        const isImageCover = featured.cover.startsWith('/') || featured.cover.startsWith('http');
+        return (
+          <Link to={`/edukasi/${featured.slug}`} className="block group">
+            <Card className="overflow-hidden grid grid-cols-1 md:grid-cols-2 hover:shadow-md transition-shadow cursor-pointer">
+              <div className="h-56 md:h-80 bg-surface-container-high relative overflow-hidden flex items-center justify-center">
+                {isImageCover ? (
+                  <img
+                    src={featured.cover}
+                    alt={featured.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${featured.cover}`} />
+                )}
               </div>
-            </div>
-          </Card>
-        </Link>
-      )}
+              <div className="p-lg flex flex-col justify-center">
+                <span className="self-start bg-tertiary text-on-tertiary text-[10px] px-sm py-xs rounded font-bold uppercase mb-sm">
+                  Utama
+                </span>
+                <h4 className="text-headline-md md:text-display-lg-mobile font-bold text-on-surface mb-sm">
+                  {featured.title}
+                </h4>
+                <p className="text-body-md text-on-surface-variant mb-md">{featured.excerpt}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-caption text-on-surface-variant flex items-center gap-xs">
+                    <Clock size={14} /> {featured.readMinutes} mnt baca
+                  </span>
+                  <span className="text-label-md font-semibold text-primary flex items-center gap-xs group-hover:underline">
+                    Baca Selengkapnya <ArrowRight size={14} />
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        );
+      })()}
 
       {/* Grid + newsletter */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md">

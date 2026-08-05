@@ -54,6 +54,11 @@ export const RISK_FACTORS = [
   'Luka mulut > 2 minggu',
 ] as const;
 
+export interface ArticleImage {
+  url: string;
+  caption?: string;
+}
+
 export interface Article {
   id: string;
   /** URL-facing identifier, e.g. "mengenali-gejala-awal-kanker-mulut". */
@@ -63,10 +68,14 @@ export interface Article {
   excerpt: string;
   readMinutes: number;
   featured?: boolean;
-  /** Tailwind gradient classes used as a placeholder cover. */
+  /** Image URL or Tailwind gradient classes used as cover. */
   cover: string;
   /** Full article body as paragraphs (falls back to a default when omitted). */
   body?: string[];
+  /** Cited scientific references / sources. */
+  sources?: string[];
+  /** Optional figures/images with captions. */
+  images?: ArticleImage[];
 }
 
 export interface Checkup {

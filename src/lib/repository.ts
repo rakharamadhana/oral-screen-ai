@@ -250,6 +250,8 @@ type ArticleRow = {
   featured: boolean;
   cover: string;
   body: string[] | null;
+  sources: string[] | null;
+  images: Article['images'] | null;
 };
 
 function rowToArticle(r: ArticleRow): Article {
@@ -265,6 +267,8 @@ function rowToArticle(r: ArticleRow): Article {
     // Empty array in the DB means "no custom body" — let callers fall back to
     // the default body, matching the static content's optional `body`.
     body: r.body && r.body.length > 0 ? r.body : undefined,
+    sources: r.sources && r.sources.length > 0 ? r.sources : undefined,
+    images: r.images && r.images.length > 0 ? r.images : undefined,
   };
 }
 
