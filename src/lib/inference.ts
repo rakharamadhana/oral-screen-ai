@@ -21,14 +21,28 @@ export interface ModelConfig {
   testAuc: number;
 }
 
+/** Fractional sub-rectangle (0..1) of the ORIGINAL displayed photo that the
+ * model actually saw -- less than the full image whenever a non-square photo
+ * got centre-cropped. {x0:0,y0:0,x1:1,y1:1} means the whole photo was used. */
+export interface AnalyzedRegion {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+export const FULL_REGION: AnalyzedRegion = { x0: 0, y0: 0, x1: 1, y1: 1 };
+
 export interface InferenceOutput {
   /** P(PERLU RUJUKAN) in [0, 1]. */
   prob: number;
   logit: number;
   /** Real class activation map (H x W, min-max normalised) or null if unavailable. */
   heatmap: number[][] | null;
-  /** Normalised centre (0..1) of the hottest CAM cell. */
+  /** Normalised centre (0..1) of the hottest CAM cell, within the analyzed crop. */
   peak: { x: number; y: number };
+  /** Which part of the original photo was actually analyzed (see AnalyzedRegion). */
+  region: AnalyzedRegion;
 }
 
 export interface LoadedModel {
@@ -45,7 +59,7 @@ const MODELS_BASE = 'assets/models';
  * just keeps triage classification defined during the brief load / on failure.
  * Keep it in sync with model_config.json's decisionThreshold on each retrain.
  */
-export const FALLBACK_DECISION_THRESHOLD = 0.12808673083782196;
+export const FALLBACK_DECISION_THRESHOLD = 0.2172776311635971;
 
 // Caches the parsed model_config.json so lightweight consumers (history, home)
 // can read the calibrated threshold without downloading the 25 MB ONNX session.
@@ -238,7 +252,12 @@ export function getJetColor(v: number): [number, number, number] {
 
 /**
  * Runs a full forward pass on any canvas-drawable source (image OR video frame).
- * Full square resize to config.imgSize (no centre crop, matching training).
+ * Resizes the shorter side to config.imgSize, then centre-crops the square --
+ * matches training exactly. Not a stretch (which let the model read a photo's
+ * native aspect ratio as a class shortcut) and not a letterbox pad (which was
+ * tried and made the shortcut worse, since padding amount is just as readable
+ * a cue as squish amount). A true crop discards the excess instead of encoding
+ * it, at the cost of losing whatever falls outside the centre square.
  */
 let scratchCanvas: HTMLCanvasElement | null = null;
 
@@ -252,6 +271,26 @@ function getScratchCanvas(size: number): HTMLCanvasElement {
   return scratchCanvas;
 }
 
+/** Width/height of any of the CanvasImageSource kinds this app actually passes in. */
+function getSourceDims(source: CanvasImageSource): { w: number; h: number } {
+  if (source instanceof HTMLVideoElement) return { w: source.videoWidth, h: source.videoHeight };
+  if (source instanceof HTMLImageElement) return { w: source.naturalWidth, h: source.naturalHeight };
+  const anySource = source as { width?: number; height?: number };
+  return { w: anySource.width ?? 0, h: anySource.height ?? 0 };
+}
+
+/** Fractional sub-rectangle of a (w x h) photo that survives a centre-crop-to-
+ * square: the longer dimension gets trimmed down to match the shorter one. */
+function computeCenterCropRegion(w: number, h: number): AnalyzedRegion {
+  if (w <= 0 || h <= 0) return FULL_REGION;
+  if (w >= h) {
+    const pad = (1 - h / w) / 2;
+    return { x0: pad, y0: 0, x1: 1 - pad, y1: 1 };
+  }
+  const pad = (1 - w / h) / 2;
+  return { x0: 0, y0: pad, x1: 1, y1: 1 - pad };
+}
+
 export async function runInferenceOnSource(
   model: LoadedModel,
   source: CanvasImageSource,
@@ -259,9 +298,19 @@ export async function runInferenceOnSource(
   const { session, config, fcWeights } = model;
   const S = config.imgSize;
 
+  const { w: sw, h: sh } = getSourceDims(source);
+  const region = computeCenterCropRegion(sw, sh);
+  const scale = S / Math.min(sw || S, sh || S);
+  const drawW = Math.round((sw || S) * scale);
+  const drawH = Math.round((sh || S) * scale);
+  const offX = Math.round((S - drawW) / 2);
+  const offY = Math.round((S - drawH) / 2);
+
   const canvas = getScratchCanvas(S);
   const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(source, 0, 0, S, S);
+  // Canvas clips anything outside [0,S)x[0,S) automatically, so the crop needs
+  // no fill colour -- the drawn image always fully covers the square.
+  ctx.drawImage(source, offX, offY, drawW, drawH);
   const pixels = ctx.getImageData(0, 0, S, S).data;
 
   const inputTensor = buildInputTensor(pixels, S, config);
@@ -277,7 +326,7 @@ export async function runInferenceOnSource(
     peak = findCamPeakNormalized(heatmap);
   }
 
-  return { prob, logit, heatmap, peak };
+  return { prob, logit, heatmap, peak, region };
 }
 
 /** Runs a forward pass on a decoded image element. */
@@ -300,6 +349,7 @@ export function drawCAMOverlay(
   height: number,
   heatmap: number[][],
   drawBox = true,
+  region: AnalyzedRegion = FULL_REGION,
 ): void {
   const rows = heatmap.length;
   const cols = heatmap[0].length;
@@ -322,10 +372,19 @@ export function drawCAMOverlay(
   }
   tctx.putImageData(tdata, 0, 0);
 
+  // The whole heatmap grid is real content (a centre crop has no padding),
+  // but the model only ever saw the `region` sub-rectangle of the ORIGINAL
+  // photo -- so draw the full heatmap stretched into just that sub-rectangle
+  // of the display, leaving whatever got cropped away untinted.
+  const dx = region.x0 * width;
+  const dy = region.y0 * height;
+  const dw = Math.max(1e-6, (region.x1 - region.x0) * width);
+  const dh = Math.max(1e-6, (region.y1 - region.y0) * height);
+
   ctx.save();
   ctx.globalAlpha = 0.45;
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(temp, 0, 0, width, height);
+  ctx.drawImage(temp, 0, 0, cols, rows, dx, dy, dw, dh);
   ctx.restore();
 
   // Tight box around the hottest region: the connected component containing the
@@ -334,10 +393,10 @@ export function drawCAMOverlay(
   if (drawBox) {
     const bounds = hotComponentBounds(heatmap, CAM_BOX_THRESHOLD);
     if (bounds) {
-      const x0 = (bounds.minC / cols) * width;
-      const y0 = (bounds.minR / rows) * height;
-      const x1 = ((bounds.maxC + 1) / cols) * width;
-      const y1 = ((bounds.maxR + 1) / rows) * height;
+      const x0 = dx + (bounds.minC / cols) * dw;
+      const y0 = dy + (bounds.minR / rows) * dh;
+      const x1 = dx + ((bounds.maxC + 1) / cols) * dw;
+      const y1 = dy + ((bounds.maxR + 1) / rows) * dh;
       ctx.save();
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = Math.max(2, width / 130);
@@ -417,13 +476,14 @@ export function renderCAMToCanvas(
   img: HTMLImageElement,
   heatmap: number[][] | null,
   drawBox = true,
+  region: AnalyzedRegion = FULL_REGION,
 ): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   ctx.drawImage(img, 0, 0);
-  if (heatmap) drawCAMOverlay(ctx, canvas.width, canvas.height, heatmap, drawBox);
+  if (heatmap) drawCAMOverlay(ctx, canvas.width, canvas.height, heatmap, drawBox, region);
 }
 
 /** Loads an image element from a data/object URL and resolves once decoded. */

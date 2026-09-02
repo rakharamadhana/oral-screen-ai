@@ -51,7 +51,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
         }
         ctx.drawImage(v, 0, 0, cv.width, cv.height);
         if (showCamRef.current && latestRef.current?.heatmap) {
-          drawCAMOverlay(ctx, cv.width, cv.height, latestRef.current.heatmap, false);
+          drawCAMOverlay(ctx, cv.width, cv.height, latestRef.current.heatmap, false, latestRef.current.region);
         }
 
         const now = performance.now();

@@ -844,7 +844,7 @@ function ResultCanvas({ photo, output }: { photo: string; output: InferenceOutpu
     let cancelled = false;
     loadImage(photo).then((img) => {
       if (cancelled || !canvasRef.current) return;
-      renderCAMToCanvas(canvasRef.current, img, output.heatmap, false);
+      renderCAMToCanvas(canvasRef.current, img, output.heatmap, false, output.region);
     });
     return () => {
       cancelled = true;
