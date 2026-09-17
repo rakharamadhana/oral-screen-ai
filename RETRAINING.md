@@ -58,21 +58,33 @@ where `<architecture>` is the `"architecture"` value inside `model_config.json`.
 
 ## Rule 2 — the model's input/output "contract"
 
-For a no-code swap, the exported ONNX must keep these exact tensor names (the app
-hardcodes them in [`src/lib/inference.ts`](src/lib/inference.ts) around lines
-239–246):
+As of the 2026-09 retrain the model is a **4-class classifier** (Mulut Normal /
+Sariawan / Kelainan Mulut / Kanker Mulut), not the old binary referral model.
+For a no-code swap on a future retrain, the exported ONNX must keep these
+exact tensor names (the app hardcodes them in
+[`src/lib/inference.ts`](src/lib/inference.ts)):
 
 | Tensor | Name | Shape |
 |---|---|---|
 | Input | `input_image` | `[1, 3, imgSize, imgSize]` |
-| Output (score) | `logits` | `[1, 1]` |
+| Output (scores) | `logits` | `[1, numClasses]` (currently 4) |
 | Output (for heatmap) | `features` | `[1, C, H, W]` |
 
-- Probability = `sigmoid(logits[0])` = P(PERLU RUJUKAN).
-- `fc_weights.json`'s `weights` array length **must equal `C`** (the feature
-  channel count — currently 2048). `export_onnx.py` regenerates this to match.
+- Probabilities = `softmax(logits)`; the predicted class is `argmax(probs)`.
+  There is **no single scalar decision threshold** anymore — that only made
+  sense for the old binary model. See `src/lib/risk.ts` for how a predicted
+  class name maps to app-level UI (`RiskLevel`, colors, copy).
+- `fc_weights.json`'s `weights` is now `[numClasses][C]` — one weight row per
+  class, not a single flat vector. The app picks the row for whichever class
+  it's visualising (normally the predicted one). `export_onnx.py` regenerates
+  this shape to match on every export.
 - `H`/`W` (the CAM grid size) can change freely — the heatmap code reads the
   dimensions dynamically.
+- **Adding/removing/reordering classes** requires updating
+  `CLASS_NAME_TO_LEVEL` in `src/lib/risk.ts` to map every raw class name from
+  `model_config.json` to an app-level `RiskLevel`, plus a Supabase migration
+  if the set of `RiskLevel` values itself changes (see
+  `supabase/migrations/0010_scans_4class_risk_level.sql` for the pattern).
 
 **If a tensor name differs** (e.g. the export names the score `output` instead of
 `logits`), update those lines in `inference.ts`. **If the model has no
@@ -84,19 +96,25 @@ hardcodes them in [`src/lib/inference.ts`](src/lib/inference.ts) around lines
 
 ```jsonc
 {
-  "classNames": ["TIDAK PERLU RUJUKAN", "PERLU RUJUKAN"],
-  "positiveClass": "PERLU RUJUKAN",
-  "decisionThreshold": 0.1281,   // sensitivity knob — read at runtime, never hardcoded
+  "classNames": [
+    "SUSPECT MULUT NORMAL",
+    "SUSPECT SARIAWAN",
+    "SUSPECT KELAINAN MULUT",
+    "SUSPECT KANKER MULUT"
+  ],
   "imgSize": 224,                // input resolution; preprocessing follows this
   "mean": [0.485, 0.456, 0.406], // normalization (must match training)
   "std":  [0.229, 0.224, 0.225],
   "architecture": "resnest50d",  // drives the .onnx filename (Rule 1)
-  "testAuc": 0.908               // informational
+  "testAccuracy": 0.8333,        // informational
+  "testMacroF1": 0.8205          // informational
 }
 ```
 
-Change the threshold, image size, or normalization here and the app adapts on
-next load — no code edit needed.
+Change the class names, image size, or normalization here and the app adapts
+on next load — no code edit needed, AS LONG AS every class name is already
+mapped in `CLASS_NAME_TO_LEVEL` (`src/lib/risk.ts`). Adding a genuinely new
+class (not just renaming/reordering the current 4) needs a `risk.ts` edit.
 
 ---
 
@@ -117,12 +135,18 @@ Copy the 3 outputs from there into this app's `public/assets/models/`.
 
 This app is a **triage aid, not a diagnosis**. After retraining:
 
-- **Re-tune the decision threshold** and write the chosen value into
-  `model_config.json`. The current 0.1281 was tuned for high sensitivity.
-- **Re-measure** sensitivity / specificity / AUC on a held-out test set (the
-  training project has report generators, e.g. `Laporan_Performa_Model`).
+- **Re-measure** per-class sensitivity/specificity/PPV/NPV (with 95% CI) and
+  macro-F1/macro-AUC on a held-out test set — the training project has
+  `compute_extended_metrics.py` and `generate_training_report.py` for this.
+- Pay particular attention to the **Kanker Mulut** class's sensitivity/recall
+  specifically — a missed cancer case is far costlier than a false alarm on
+  any other class. There is no scalar threshold to bias this anymore (see
+  Rule 2) — if recall on that class needs improving, it has to come from the
+  model/data (more training data, class weighting) or a dedicated per-class
+  decision rule, not a config tweak.
 - **Sanity-check parity**: score a few known images in the browser and confirm
-  they match the Python pipeline within ~0.02 (canvas vs PIL resize differences).
+  the predicted class matches the Python pipeline (canvas vs PIL resize can
+  cause small probability differences, but the argmax class should agree).
 - Make sure there is **consent / authorization** to use the images for training.
 
 ---
@@ -135,9 +159,10 @@ npx cap sync android   # sync into the Android app
 ```
 
 Then open the app, run a scan, and confirm:
-- A known **PERLU RUJUKAN** image → high score, referral verdict, heatmap over
-  the lesion.
-- A **TIDAK PERLU RUJUKAN** image → low score, no-referral verdict.
+- A known **Kanker Mulut** test image → predicted class Kanker Mulut, heatmap
+  over the lesion.
+- A known **Mulut Normal** image → predicted class Mulut Normal.
+- Repeat for Sariawan and Kelainan Mulut test images if you have known examples.
 
 If the model fails to load into WASM memory on Android, add
 `android:largeHeap="true"` to `android/app/src/main/AndroidManifest.xml`.

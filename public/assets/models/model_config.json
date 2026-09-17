@@ -1,10 +1,10 @@
 {
   "classNames": [
-    "TIDAK PERLU RUJUKAN",
-    "PERLU RUJUKAN"
+    "SUSPECT MULUT NORMAL",
+    "SUSPECT SARIAWAN",
+    "SUSPECT KELAINAN MULUT",
+    "SUSPECT KANKER MULUT"
   ],
-  "positiveClass": "PERLU RUJUKAN",
-  "decisionThreshold": 0.2172776311635971,
   "imgSize": 224,
   "mean": [
     0.485,
@@ -17,7 +17,8 @@
     0.225
   ],
   "architecture": "resnest50d",
-  "testAuc": 0.9652873563218392,
+  "testAccuracy": 0.8333333333333334,
+  "testMacroF1": 0.8205488844221802,
   "preprocessing": "center_crop_square",
-  "ttaAtTraining": false
+  "ttaAtTraining": true
 }

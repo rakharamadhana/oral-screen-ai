@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, BarChart3, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Search, BarChart3, CheckCircle2, AlertTriangle, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { RiskBadge, RiskIcon } from '../components/ui/RiskBadge';
@@ -7,24 +7,25 @@ import { Chip } from '../components/ui/Chip';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Modal } from '../components/ui/Modal';
 import { listScans } from '../lib/repository';
-import { useModelConfig } from '../hooks/useOnnxModel';
-import { FALLBACK_DECISION_THRESHOLD } from '../lib/inference';
 import { useLang } from '../lib/i18n';
 import type { ScanRecord } from '../lib/types';
-import { classifyRisk, type RiskLevel } from '../lib/risk';
+import { riskResultForLevel, type RiskLevel } from '../lib/risk';
 
-/** Referral verdict for a scan, always derived from its probability + the model's threshold. */
-const levelOf = (r: ScanRecord, threshold: number): RiskLevel =>
-  classifyRisk(r.topProbability, threshold).level;
+// The predicted class is resolved once at scan time (argmax over the model's
+// softmax output -- there's no runtime-tunable threshold to re-derive against
+// anymore) and persisted on the record, so history/filtering just reads
+// scan.riskLevel directly instead of recomputing it.
 
 const FILTERS: Array<{
   label: string;
   labelEn: string;
-  match: (r: ScanRecord, threshold: number) => boolean;
+  match: (r: ScanRecord) => boolean;
 }> = [
   { label: 'Semua', labelEn: 'All', match: () => true },
-  { label: 'Tidak Perlu Rujukan', labelEn: 'No Referral', match: (r, th) => levelOf(r, th) === 'TidakRujukan' },
-  { label: 'Perlu Rujukan', labelEn: 'Referral', match: (r, th) => levelOf(r, th) === 'Rujukan' },
+  { label: 'Mulut Normal', labelEn: 'Normal', match: (r) => r.riskLevel === 'MulutNormal' },
+  { label: 'Sariawan', labelEn: 'Canker Sore', match: (r) => r.riskLevel === 'Sariawan' },
+  { label: 'Kelainan Mulut', labelEn: 'Abnormality', match: (r) => r.riskLevel === 'KelainanMulut' },
+  { label: 'Kanker Mulut', labelEn: 'Cancer', match: (r) => r.riskLevel === 'KankerMulut' },
 ];
 
 function formatDate(iso: string): { date: string; time: string } {
@@ -35,19 +36,21 @@ function formatDate(iso: string): { date: string; time: string } {
 }
 
 const SHORT_NOTE: Record<RiskLevel, [string, string]> = {
-  TidakRujukan: ['Kondisi mulut terlihat sehat.', 'Oral condition looks healthy.'],
-  Rujukan: ['Disarankan konsultasi ke dokter atau spesialis.', 'Consult a dentist or specialist.'],
+  MulutNormal: ['Kondisi mulut terlihat sehat.', 'Oral condition looks healthy.'],
+  Sariawan: ['Umumnya jinak dan sembuh sendiri.', 'Usually benign and self-healing.'],
+  KelainanMulut: ['Disarankan periksa ke dokter gigi.', 'Consult a dentist.'],
+  KankerMulut: ['Segera konsultasi ke spesialis.', 'Consult a specialist urgently.'],
 };
 
 const RISK_TITLE: Record<RiskLevel, [string, string]> = {
-  TidakRujukan: ['Tidak Perlu Rujukan', 'No Referral Needed'],
-  Rujukan: ['Perlu Rujukan', 'Referral Recommended'],
+  MulutNormal: ['Mulut Normal', 'Normal'],
+  Sariawan: ['Diduga Sariawan', 'Suspected Canker Sore'],
+  KelainanMulut: ['Diduga Kelainan Mulut', 'Suspected Abnormality'],
+  KankerMulut: ['Diduga Kanker Mulut', 'Suspected Cancer'],
 };
 
 export function Riwayat() {
   const { t } = useLang();
-  const config = useModelConfig();
-  const threshold = config?.decisionThreshold ?? FALLBACK_DECISION_THRESHOLD;
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [filter, setFilter] = useState(0);
   const [query, setQuery] = useState('');
@@ -64,18 +67,20 @@ export function Riwayat() {
   const filtered = useMemo(
     () =>
       scans
-        .filter((r) => FILTERS[filter].match(r, threshold))
+        .filter((r) => FILTERS[filter].match(r))
         .filter((r) => r.refCode.toLowerCase().includes(query.toLowerCase())),
-    [scans, filter, query, threshold],
+    [scans, filter, query],
   );
 
   const totals = useMemo(
     () => ({
       total: scans.length,
-      low: scans.filter((s) => levelOf(s, threshold) === 'TidakRujukan').length,
-      high: scans.filter((s) => levelOf(s, threshold) === 'Rujukan').length,
+      normal: scans.filter((s) => s.riskLevel === 'MulutNormal').length,
+      sariawan: scans.filter((s) => s.riskLevel === 'Sariawan').length,
+      kelainan: scans.filter((s) => s.riskLevel === 'KelainanMulut').length,
+      kanker: scans.filter((s) => s.riskLevel === 'KankerMulut').length,
     }),
-    [scans, threshold],
+    [scans],
   );
 
   if (loading) return <RiwayatSkeleton />;
@@ -95,10 +100,12 @@ export function Riwayat() {
       </div>
 
       {/* Summary tiles */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-md">
         <SummaryTile icon={BarChart3} label="TOTAL SCANS" value={totals.total} color="#4648d4" />
-        <SummaryTile icon={CheckCircle2} label="NO REFERRAL" value={totals.low} color="#006b2d" accent />
-        <SummaryTile icon={AlertTriangle} label="NEEDS REFERRAL" value={totals.high} color="#ba1a1a" accent />
+        <SummaryTile icon={CheckCircle2} label="MULUT NORMAL" value={totals.normal} color="#006b2d" accent />
+        <SummaryTile icon={AlertCircle} label="SARIAWAN" value={totals.sariawan} color="#f9a825" accent />
+        <SummaryTile icon={AlertTriangle} label="KELAINAN MULUT" value={totals.kelainan} color="#ef6c00" accent />
+        <SummaryTile icon={ShieldAlert} label="KANKER MULUT" value={totals.kanker} color="#ba1a1a" accent />
       </div>
 
       {/* Mobile filter chips */}
@@ -111,7 +118,7 @@ export function Riwayat() {
       {/* Mobile card list */}
       <div className="space-y-sm md:hidden">
         {filtered.map((r) => (
-          <MobileRow key={r.id} scan={r} threshold={threshold} onSelect={() => setSelected(r)} />
+          <MobileRow key={r.id} scan={r} onSelect={() => setSelected(r)} />
         ))}
         {filtered.length === 0 && <EmptyState />}
       </div>
@@ -161,10 +168,10 @@ export function Riwayat() {
                     )}
                   </td>
                   <td className="py-md">
-                    <RiskBadge level={levelOf(r, threshold)} variant="en" />
+                    <RiskBadge level={r.riskLevel} variant="en" />
                   </td>
                   <td className="py-md">
-                    <Thumb scan={r} threshold={threshold} />
+                    <Thumb scan={r} />
                   </td>
                   <td className="py-md text-right">
                     <button
@@ -189,7 +196,7 @@ export function Riwayat() {
       </Card>
 
       {selected && (
-        <ScanDetailModal scan={selected} threshold={threshold} onClose={() => setSelected(null)} />
+        <ScanDetailModal scan={selected} onClose={() => setSelected(null)} />
       )}
     </div>
   );
@@ -223,33 +230,31 @@ function SummaryTile({
   );
 }
 
-function Thumb({ scan, threshold }: { scan: ScanRecord; threshold: number }) {
+function Thumb({ scan }: { scan: ScanRecord }) {
   if (scan.thumbnail) {
     return <img src={scan.thumbnail} alt="" className="w-10 h-10 rounded-lg object-cover" />;
   }
   return (
     <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-      <RiskIcon level={levelOf(scan, threshold)} size={18} />
+      <RiskIcon level={scan.riskLevel} size={18} />
     </div>
   );
 }
 
 function MobileRow({
   scan,
-  threshold,
   onSelect,
 }: {
   scan: ScanRecord;
-  threshold: number;
   onSelect: () => void;
 }) {
   const { t } = useLang();
   const { date, time } = formatDate(scan.createdAt);
-  const level = levelOf(scan, threshold);
-  const color = level === 'Rujukan' ? '#ba1a1a' : '#006b2d';
+  const level = scan.riskLevel;
+  const color = riskResultForLevel(level).color;
   return (
     <Card className="p-md flex items-center gap-md cursor-pointer" onClick={onSelect}>
-      <Thumb scan={scan} threshold={threshold} />
+      <Thumb scan={scan} />
       <div className="flex-1">
         <p className="text-caption text-on-surface-variant">
           {date} • {time}
@@ -278,15 +283,13 @@ function EmptyState() {
 
 function ScanDetailModal({
   scan,
-  threshold,
   onClose,
 }: {
   scan: ScanRecord;
-  threshold: number;
   onClose: () => void;
 }) {
   const { t, lang } = useLang();
-  const risk = classifyRisk(scan.topProbability, threshold);
+  const risk = riskResultForLevel(scan.riskLevel, scan.topProbability);
   const { date, time } = formatDate(scan.createdAt);
 
   return (

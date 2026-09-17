@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Brain, Check, VideoOff } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { RiskIcon } from '../ui/RiskBadge';
-import { classifyRisk } from '../../lib/risk';
+import { classifyFromOutput, type RiskResult } from '../../lib/risk';
 import { drawCAMOverlay, type InferenceOutput } from '../../lib/inference';
 
 interface LiveInferenceProps {
   inferSource: (source: CanvasImageSource) => Promise<InferenceOutput>;
-  threshold: number;
   /** Called when the user freezes the current frame + its result. */
   onCapture: (photoDataUrl: string, output: InferenceOutput) => void;
 }
@@ -18,7 +17,7 @@ interface LiveInferenceProps {
  * overlaying the real Grad-CAM. "Gunakan Hasil Ini" freezes the current frame
  * and its latest result.
  */
-export function LiveInference({ inferSource, threshold, onCapture }: LiveInferenceProps) {
+export function LiveInference({ inferSource, onCapture }: LiveInferenceProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -29,7 +28,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
   const showCamRef = useRef(true);
 
   const [showCam, setShowCam] = useState(true);
-  const [prob, setProb] = useState<number | null>(null);
+  const [risk, setRisk] = useState<RiskResult | null>(null);
   const [started, setStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +60,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
           inferSource(v)
             .then((out) => {
               latestRef.current = out;
-              setProb(out.prob);
+              setRisk(classifyFromOutput(out));
               processingRef.current = false;
             })
             .catch(() => {
@@ -124,8 +123,6 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
     );
   }
 
-  const risk = prob != null ? classifyRisk(prob, threshold) : null;
-
   return (
     <div className="space-y-md">
       <div className="relative rounded-xl overflow-hidden bg-inverse-surface aspect-[4/3]">
@@ -148,7 +145,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
           </div>
         )}
 
-        {started && prob == null && (
+        {started && risk == null && (
           <div className="absolute bottom-sm left-sm flex items-center gap-xs bg-surface-container-lowest/90 rounded-full px-sm py-base">
             <Loader2 size={14} className="animate-spin text-primary" />
             <span className="text-caption text-on-surface-variant">Menganalisis…</span>
@@ -160,7 +157,7 @@ export function LiveInference({ inferSource, threshold, onCapture }: LiveInferen
         <Button variant="outline" onClick={() => setShowCam((s) => !s)} className="flex-1">
           <Brain size={18} /> {showCam ? 'Sembunyikan' : 'Tampilkan'} Peta Panas
         </Button>
-        <Button onClick={capture} disabled={prob == null} className="flex-1">
+        <Button onClick={capture} disabled={risk == null} className="flex-1">
           <Check size={18} /> Gunakan Hasil Ini
         </Button>
       </div>

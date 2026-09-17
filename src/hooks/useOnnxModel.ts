@@ -53,9 +53,9 @@ export interface UseOnnxModel {
 
 /**
  * Loads only the tiny model_config.json (not the 25 MB session). Pages that
- * just need config-derived facts — e.g. the decision threshold to classify
- * stored scans — use this instead of `useOnnxModel` so the home/history views
- * never trigger the heavy model download. Returns null until config resolves.
+ * just need config-derived facts (e.g. class names) use this instead of
+ * `useOnnxModel` so the home/history views never trigger the heavy model
+ * download. Returns null until config resolves.
  */
 export function useModelConfig(): ModelConfig | null {
   const [config, setConfig] = useState<ModelConfig | null>(null);
@@ -66,7 +66,7 @@ export function useModelConfig(): ModelConfig | null {
         if (!cancelled) setConfig(c);
       })
       .catch(() => {
-        // Config unavailable — consumers fall back to FALLBACK_DECISION_THRESHOLD.
+        // Config unavailable — consumers that need it just render without it.
       });
     return () => {
       cancelled = true;

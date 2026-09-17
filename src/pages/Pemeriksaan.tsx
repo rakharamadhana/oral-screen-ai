@@ -21,13 +21,8 @@ import { RiskIcon } from '../components/ui/RiskBadge';
 import { LiveInference } from '../components/scan/LiveInference';
 import { CameraCapture } from '../components/scan/CameraCapture';
 import { useOnnxModel, type ModelProgress } from '../hooks/useOnnxModel';
-import {
-  renderCAMToCanvas,
-  loadImage,
-  FALLBACK_DECISION_THRESHOLD,
-  type InferenceOutput,
-} from '../lib/inference';
-import { classifyRisk, type RiskResult } from '../lib/risk';
+import { renderCAMToCanvas, loadImage, type InferenceOutput } from '../lib/inference';
+import { classifyFromOutput, type RiskResult } from '../lib/risk';
 import { addScan, generateRefCode, getProfile } from '../lib/repository';
 import { useLang } from '../lib/i18n';
 import type { Profile, ScanRecord } from '../lib/types';
@@ -93,19 +88,18 @@ export function Pemeriksaan() {
     getProfile().then(setProfile).catch(() => setProfile(EMPTY_PROFILE));
   }, []);
 
-  const threshold = model.config?.decisionThreshold ?? FALLBACK_DECISION_THRESHOLD;
-
   // Shared finaliser: classify, persist to history, show the result screen.
   const commitResult = async (photoUrl: string, output: InferenceOutput) => {
-    const risk = classifyRisk(output.prob, threshold);
+    const risk = classifyFromOutput(output);
+    const topProbability = output.probs[output.predictedIndex];
     const thumbnail = await makeThumbnail(photoUrl);
     const scan: ScanRecord = {
       id: crypto.randomUUID(),
       refCode: generateRefCode(),
       createdAt: new Date().toISOString(),
       riskLevel: risk.level,
-      topProbability: output.prob,
-      regionResults: [{ region: 'Rongga Mulut', probability: output.prob }],
+      topProbability,
+      regionResults: [{ region: 'Rongga Mulut', probability: topProbability }],
       patientName: profile.fullName,
       patientMedicalId: profile.medicalId,
       thumbnail,
@@ -176,7 +170,6 @@ export function Pemeriksaan() {
           onBack={() => navigate('/')}
           onNext={() => setStep(1)}
           inferSource={model.inferSource}
-          threshold={threshold}
           onLiveCapture={commitResult}
         />
       )}
@@ -336,7 +329,6 @@ function AmbilFotoStep({
   onBack,
   onNext,
   inferSource,
-  threshold,
   onLiveCapture,
 }: {
   mode: CaptureMode;
@@ -346,7 +338,6 @@ function AmbilFotoStep({
   onBack: () => void;
   onNext: () => void;
   inferSource: (s: CanvasImageSource) => Promise<InferenceOutput>;
-  threshold: number;
   onLiveCapture: (url: string, output: InferenceOutput) => void;
 }) {
   const { t } = useLang();
@@ -427,7 +418,7 @@ function AmbilFotoStep({
         {/* Mode content */}
         {mode === 'live' ? (
           <>
-            <LiveInference inferSource={inferSource} threshold={threshold} onCapture={onLiveCapture} />
+            <LiveInference inferSource={inferSource} onCapture={onLiveCapture} />
             <div className="flex items-center justify-between gap-sm mt-md">
               <Button variant="outline" onClick={onBack}>
                 {t('Kembali', 'Back')}

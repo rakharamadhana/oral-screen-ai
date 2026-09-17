@@ -1,24 +1,32 @@
-// On-device ResNeSt-50 oral-referral inference.
+// On-device ResNeSt-50 oral-condition inference (4-class).
 //
 // This module holds the verified ONNX math extracted from the original
 // OralDiseaseDetector component. The model ends in global average pooling + a
-// single linear layer, so for the positive class (PERLU RUJUKAN) the Grad-CAM
-// weights reduce exactly to the fc weights -- no backward pass is needed.
+// single linear layer, so for any given class the Grad-CAM weights reduce
+// exactly to that class's row of the fc weight matrix -- no backward pass is
+// needed, just pick the row for the class being visualised (normally the
+// predicted one).
 //
-// Everything runs offline in WASM. The decision threshold, input size, and
-// normalisation stats come from model_config.json and must never be hardcoded.
+// Everything runs offline in WASM. Class names, input size, and normalisation
+// stats come from model_config.json and must never be hardcoded. There is no
+// single scalar decision threshold anymore -- the model outputs a probability
+// per class (softmax) and the predicted class is simply the argmax. See
+// ../lib/risk.ts for how a predicted class name maps to an app-level
+// RiskLevel and its UI copy.
 
 import * as ort from 'onnxruntime-web';
 
 export interface ModelConfig {
-  classNames: [string, string];
-  positiveClass: string;
-  decisionThreshold: number;
+  /** Raw model class names, in output-index order, e.g. "SUSPECT KANKER MULUT". */
+  classNames: string[];
   imgSize: number;
   mean: [number, number, number];
   std: [number, number, number];
   architecture: string;
-  testAuc: number;
+  testAccuracy?: number;
+  testMacroF1?: number;
+  preprocessing?: string;
+  ttaAtTraining?: boolean;
 }
 
 /** Fractional sub-rectangle (0..1) of the ORIGINAL displayed photo that the
@@ -34,10 +42,13 @@ export interface AnalyzedRegion {
 export const FULL_REGION: AnalyzedRegion = { x0: 0, y0: 0, x1: 1, y1: 1 };
 
 export interface InferenceOutput {
-  /** P(PERLU RUJUKAN) in [0, 1]. */
-  prob: number;
-  logit: number;
-  /** Real class activation map (H x W, min-max normalised) or null if unavailable. */
+  /** Softmax probability per class, same order as config.classNames. */
+  probs: number[];
+  /** argmax(probs) -- the predicted class index. */
+  predictedIndex: number;
+  /** config.classNames[predictedIndex], e.g. "SUSPECT KANKER MULUT". */
+  predictedClassName: string;
+  /** Real class activation map for the predicted class (H x W, min-max normalised), or null if unavailable. */
   heatmap: number[][] | null;
   /** Normalised centre (0..1) of the hottest CAM cell, within the analyzed crop. */
   peak: { x: number; y: number };
@@ -48,18 +59,11 @@ export interface InferenceOutput {
 export interface LoadedModel {
   session: ort.InferenceSession;
   config: ModelConfig;
-  fcWeights: Float32Array | null;
+  /** One weight row (length = feature channel count) per class, same order as config.classNames. */
+  fcWeights: Float32Array[] | null;
 }
 
 const MODELS_BASE = 'assets/models';
-
-/**
- * Last-resort decision threshold, used ONLY if model_config.json cannot be
- * fetched. The real value always comes from the loaded config; this literal
- * just keeps triage classification defined during the brief load / on failure.
- * Keep it in sync with model_config.json's decisionThreshold on each retrain.
- */
-export const FALLBACK_DECISION_THRESHOLD = 0.2172776311635971;
 
 // Caches the parsed model_config.json so lightweight consumers (history, home)
 // can read the calibrated threshold without downloading the 25 MB ONNX session.
@@ -151,10 +155,12 @@ export async function loadModel(onProgress?: LoadProgress): Promise<LoadedModel>
   const config: ModelConfig = await loadModelConfig();
 
   // CAM weights are optional -- without them the overlay is skipped, never faked.
-  let fcWeights: Float32Array | null = null;
+  // fc_weights.json's "weights" is [numClasses][channels] (one row per class);
+  // export_onnx.py on the training side regenerates this shape on every retrain.
+  let fcWeights: Float32Array[] | null = null;
   try {
     const fc = await fetch(`${MODELS_BASE}/fc_weights.json`).then((r) => r.json());
-    fcWeights = new Float32Array(fc.weights);
+    fcWeights = (fc.weights as number[][]).map((row) => new Float32Array(row));
   } catch {
     fcWeights = null;
   }
@@ -186,13 +192,32 @@ export function buildInputTensor(pixels: Uint8ClampedArray, size: number, config
   return new ort.Tensor('float32', floatData, [1, 3, size, size]);
 }
 
-export function sigmoid(x: number): number {
-  return 1 / (1 + Math.exp(-x));
+/** Numerically-stable softmax over raw logits. */
+export function softmax(logits: ArrayLike<number>): number[] {
+  let max = -Infinity;
+  for (let i = 0; i < logits.length; i++) if (logits[i] > max) max = logits[i];
+  const exps: number[] = [];
+  let sum = 0;
+  for (let i = 0; i < logits.length; i++) {
+    const e = Math.exp(logits[i] - max);
+    exps.push(e);
+    sum += e;
+  }
+  return exps.map((e) => e / sum);
+}
+
+/** Index of the largest value in an array. */
+export function argmax(values: ArrayLike<number>): number {
+  let best = 0;
+  for (let i = 1; i < values.length; i++) if (values[i] > values[best]) best = i;
+  return best;
 }
 
 /**
  * CAM[y][x] = ReLU( sum_c fcWeights[c] * features[c][y][x] ), then min-max
- * normalise. Reduces exactly to Grad-CAM for the positive class.
+ * normalise. `fcWeights` must be the weight row for whichever class is being
+ * visualised (normally the predicted class) -- reduces exactly to Grad-CAM
+ * for that class.
  */
 export function computeCAM(featureTensor: ort.Tensor, fcWeights: Float32Array): number[][] {
   const [, channels, height, width] = featureTensor.dims as number[];
@@ -316,17 +341,18 @@ export async function runInferenceOnSource(
   const inputTensor = buildInputTensor(pixels, S, config);
   const results = await session.run({ input_image: inputTensor });
 
-  const logit = results.logits.data[0] as number;
-  const prob = sigmoid(logit);
+  const probs = softmax(results.logits.data as Float32Array);
+  const predictedIndex = argmax(probs);
+  const predictedClassName = config.classNames[predictedIndex];
 
   let heatmap: number[][] | null = null;
   let peak = { x: 0.5, y: 0.5 };
   if (results.features && fcWeights) {
-    heatmap = computeCAM(results.features, fcWeights);
+    heatmap = computeCAM(results.features, fcWeights[predictedIndex]);
     peak = findCamPeakNormalized(heatmap);
   }
 
-  return { prob, logit, heatmap, peak, region };
+  return { probs, predictedIndex, predictedClassName, heatmap, peak, region };
 }
 
 /** Runs a forward pass on a decoded image element. */

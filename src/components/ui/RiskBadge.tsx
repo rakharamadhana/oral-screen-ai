@@ -1,20 +1,33 @@
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, AlertCircle, ShieldAlert } from 'lucide-react';
 import type { RiskLevel } from '../../lib/risk';
 import { riskChipClasses } from '../../lib/risk';
 
 const ICON = {
-  TidakRujukan: CheckCircle2,
-  Rujukan: AlertTriangle,
+  MulutNormal: CheckCircle2,
+  Sariawan: AlertCircle,
+  KelainanMulut: AlertTriangle,
+  KankerMulut: ShieldAlert,
 } as const;
 
+const COLOR: Record<RiskLevel, string> = {
+  MulutNormal: '#006b2d',
+  Sariawan: '#f9a825',
+  KelainanMulut: '#ef6c00',
+  KankerMulut: '#ba1a1a',
+};
+
 const DOT: Record<RiskLevel, string> = {
-  TidakRujukan: 'bg-tertiary',
-  Rujukan: 'bg-error',
+  MulutNormal: 'bg-tertiary',
+  Sariawan: 'bg-tertiary-container',
+  KelainanMulut: 'bg-secondary',
+  KankerMulut: 'bg-error',
 };
 
 const LABEL: Record<RiskLevel, { id: string; en: string }> = {
-  TidakRujukan: { id: 'Tidak Perlu Rujukan', en: 'No Referral' },
-  Rujukan: { id: 'Perlu Rujukan', en: 'Referral' },
+  MulutNormal: { id: 'Mulut Normal', en: 'Normal' },
+  Sariawan: { id: 'Diduga Sariawan', en: 'Suspected Canker Sore' },
+  KelainanMulut: { id: 'Diduga Kelainan Mulut', en: 'Suspected Abnormality' },
+  KankerMulut: { id: 'Diduga Kanker Mulut', en: 'Suspected Cancer' },
 };
 
 /** Small referral-status chip used in tables / history rows. */
@@ -34,6 +47,5 @@ export function RiskBadge({ level, variant = 'id' }: { level: RiskLevel; variant
 
 export function RiskIcon({ level, size = 20 }: { level: RiskLevel; size?: number }) {
   const Icon = ICON[level];
-  const color = level === 'Rujukan' ? '#ba1a1a' : '#006b2d';
-  return <Icon size={size} style={{ color }} />;
+  return <Icon size={size} style={{ color: COLOR[level] }} />;
 }

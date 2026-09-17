@@ -9,9 +9,7 @@ import { ArticleCardSkeleton, Skeleton } from '../components/ui/Skeleton';
 import { RiskIcon } from '../components/ui/RiskBadge';
 import { ARTICLES, EMPTY_PROFILE, UPCOMING_CHECKUP } from '../lib/mockData';
 import { getProfile, listArticles, listScans } from '../lib/repository';
-import { classifyRisk } from '../lib/risk';
-import { useModelConfig } from '../hooks/useOnnxModel';
-import { FALLBACK_DECISION_THRESHOLD } from '../lib/inference';
+import { riskResultForLevel } from '../lib/risk';
 import { useLang, type Lang } from '../lib/i18n';
 import type { Article, Profile, ScanRecord } from '../lib/types';
 
@@ -26,8 +24,6 @@ function formatShortDate(iso: string, lang: Lang): string {
 export function Beranda() {
   const navigate = useNavigate();
   const { t, lang } = useLang();
-  const config = useModelConfig();
-  const threshold = config?.decisionThreshold ?? FALLBACK_DECISION_THRESHOLD;
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [profile, setProfile] = useState<Profile>(EMPTY_PROFILE);
   const [articles, setArticles] = useState<Article[]>(ARTICLES);
@@ -143,7 +139,6 @@ export function Beranda() {
                 >
                   <ResultCard
                     scan={s}
-                    threshold={threshold}
                     highlighted={i === 0}
                     onClick={() => navigate('/riwayat')}
                   />
@@ -235,17 +230,15 @@ function StatBox({
 /** A recent-scan mini card for the Latest Results carousel. */
 function ResultCard({
   scan,
-  threshold,
   highlighted,
   onClick,
 }: {
   scan: ScanRecord;
-  threshold: number;
   highlighted: boolean;
   onClick: () => void;
 }) {
   const { t, lang } = useLang();
-  const risk = classifyRisk(scan.topProbability, threshold);
+  const risk = riskResultForLevel(scan.riskLevel, scan.topProbability);
   return (
     <button
       onClick={onClick}
