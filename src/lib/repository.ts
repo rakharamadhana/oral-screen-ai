@@ -215,6 +215,8 @@ export async function getProfile(): Promise<Profile> {
 }
 
 export async function saveProfile(profile: Profile): Promise<void> {
+  // Always update local storage cache immediately so UI stays in sync
+  writeLocal(PROFILE_KEY, profile);
   if (useRemote()) {
     const user = await currentUser();
     if (user) {
@@ -231,11 +233,9 @@ export async function saveProfile(profile: Profile): Promise<void> {
         notifications: profile.notifications,
         risk_factors: profile.riskFactors,
       });
-      if (error) throw error;
-      return;
+      if (error) console.error('Supabase profile save error:', error);
     }
   }
-  writeLocal(PROFILE_KEY, profile);
 }
 
 // ---------- articles ----------

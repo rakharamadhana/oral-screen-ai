@@ -109,17 +109,21 @@ export function Edukasi() {
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <ArticleCardSkeleton key={i} />)
           : rest.map((a) => <ArticleCard key={a.id} article={a} />)}
-        <div className="bg-primary rounded-xl p-lg flex flex-col items-center text-center text-on-primary justify-center">
-          <Mail size={40} className="mb-sm" />
+        <div className="bg-primary rounded-xl p-lg flex flex-col items-center text-center text-on-primary justify-center relative overflow-hidden opacity-90">
+          <span className="mb-xs text-label-sm font-semibold bg-white/20 backdrop-blur-sm text-white px-sm py-0.5 rounded-full">
+            Fitur Belum Tersedia
+          </span>
+          <Mail size={36} className="mb-xs opacity-80" />
           <h4 className="text-headline-md font-semibold mb-xs">Dapatkan Update Mingguan</h4>
-          <p className="text-body-md opacity-90 mb-md">
+          <p className="text-body-sm opacity-80 mb-md">
             Terima artikel kesehatan pilihan langsung di email Anda setiap minggu.
           </p>
           <input
+            disabled
             placeholder="Email Anda"
-            className="w-full px-md py-sm rounded-lg text-on-surface mb-sm bg-surface focus:outline-none"
+            className="w-full px-md py-sm rounded-lg text-on-surface-variant mb-sm bg-surface/80 cursor-not-allowed opacity-60 focus:outline-none"
           />
-          <Button variant="secondary" fullWidth className="!bg-primary-container">
+          <Button variant="secondary" fullWidth disabled className="!bg-primary-container/60 cursor-not-allowed opacity-70">
             Langganan Gratis
           </Button>
         </div>
@@ -128,17 +132,22 @@ export function Edukasi() {
       {/* Consult CTA */}
       <Card className="bg-surface-container-low border-none p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div>
-          <h4 className="text-headline-md md:text-display-lg-mobile font-bold text-on-surface mb-xs">
-            Ingin konsultasi lebih lanjut?
-          </h4>
+          <div className="flex items-center gap-xs mb-xs">
+            <h4 className="text-headline-md md:text-display-lg-mobile font-bold text-on-surface">
+              Ingin konsultasi lebih lanjut?
+            </h4>
+            <span className="text-label-sm font-semibold bg-surface-container-high text-on-surface-variant px-sm py-0.5 rounded-full border border-outline-variant">
+              Belum Tersedia
+            </span>
+          </div>
           <p className="text-body-md text-on-surface-variant max-w-lg">
             Hubungi tim medis kami atau jadwalkan pemeriksaan rutin untuk memastikan kesehatan mulut
             Anda tetap prima.
           </p>
         </div>
         <div className="flex gap-sm">
-          <Button>Buat Janji Temu</Button>
-          <Button variant="outline">Tanya Dokter</Button>
+          <Button disabled className="opacity-60 cursor-not-allowed">Buat Janji Temu</Button>
+          <Button variant="outline" disabled className="opacity-60 cursor-not-allowed">Tanya Dokter</Button>
         </div>
       </Card>
 

@@ -24,10 +24,10 @@ const DOT: Record<RiskLevel, string> = {
 };
 
 const LABEL: Record<RiskLevel, { id: string; en: string }> = {
-  MulutNormal: { id: 'Mulut Normal', en: 'Normal' },
-  Sariawan: { id: 'Diduga Sariawan', en: 'Suspected Canker Sore' },
-  KelainanMulut: { id: 'Diduga Kelainan Mulut', en: 'Suspected Abnormality' },
-  KankerMulut: { id: 'Diduga Kanker Mulut', en: 'Suspected Cancer' },
+  MulutNormal: { id: 'Mulut Normal', en: 'Mulut Normal' },
+  Sariawan: { id: 'Diduga Sariawan', en: 'Diduga Sariawan' },
+  KelainanMulut: { id: 'Diduga Kelainan Mulut', en: 'Diduga Kelainan Mulut' },
+  KankerMulut: { id: 'Diduga Kanker Mulut', en: 'Diduga Kanker Mulut' },
 };
 
 /** Small referral-status chip used in tables / history rows. */

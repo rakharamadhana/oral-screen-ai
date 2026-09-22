@@ -24,7 +24,7 @@ export const SEED_PROFILE: Profile = {
   email: 'andi.setiawan@email.com',
   medicalId: 'OD-92831',
   phone: '+62 812 3456 7890',
-  birthDate: '15 Maret 1990',
+  birthDate: '1990-03-15',
   memberSince: 'Jan 2024',
   avatarUrl: null,
   verified: true,

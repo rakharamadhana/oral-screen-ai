@@ -65,12 +65,19 @@ export function Bantuan() {
 
       <Card className="bg-surface-container-low border-none p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div>
-          <h4 className="text-headline-md font-bold text-on-surface mb-xs">Masih butuh bantuan?</h4>
+          <div className="flex items-center gap-xs mb-xs">
+            <h4 className="text-headline-md font-bold text-on-surface">Masih butuh bantuan?</h4>
+            <span className="text-label-sm font-semibold bg-surface-container-high text-on-surface-variant px-sm py-0.5 rounded-full border border-outline-variant">
+              Belum Tersedia
+            </span>
+          </div>
           <p className="text-body-md text-on-surface-variant">
             Tim dukungan medis dan teknis kami siap membantu Anda.
           </p>
         </div>
-        <Button>Hubungi Dukungan</Button>
+        <Button disabled className="opacity-60 cursor-not-allowed">
+          Hubungi Dukungan
+        </Button>
       </Card>
     </div>
   );
@@ -78,10 +85,15 @@ export function Bantuan() {
 
 function ContactCard({ icon: Icon, title, detail }: { icon: typeof Mail; title: string; detail: string }) {
   return (
-    <Card className="p-lg flex flex-col items-start gap-sm hover:shadow-md transition-shadow cursor-pointer">
-      <span className="w-11 h-11 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
-        <Icon size={22} />
-      </span>
+    <Card className="p-lg flex flex-col items-start gap-sm opacity-65 cursor-not-allowed relative overflow-hidden">
+      <div className="flex items-center justify-between w-full">
+        <span className="w-11 h-11 rounded-lg bg-primary-container/60 text-on-primary flex items-center justify-center">
+          <Icon size={22} />
+        </span>
+        <span className="text-label-sm font-semibold bg-surface-container-high text-on-surface-variant px-sm py-0.5 rounded-full border border-outline-variant">
+          Belum Tersedia
+        </span>
+      </div>
       <h4 className="text-body-lg font-semibold text-on-surface">{title}</h4>
       <p className="text-body-md text-on-surface-variant">{detail}</p>
     </Card>

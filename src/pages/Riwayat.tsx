@@ -21,11 +21,11 @@ const FILTERS: Array<{
   labelEn: string;
   match: (r: ScanRecord) => boolean;
 }> = [
-  { label: 'Semua', labelEn: 'All', match: () => true },
-  { label: 'Mulut Normal', labelEn: 'Normal', match: (r) => r.riskLevel === 'MulutNormal' },
-  { label: 'Sariawan', labelEn: 'Canker Sore', match: (r) => r.riskLevel === 'Sariawan' },
-  { label: 'Kelainan Mulut', labelEn: 'Abnormality', match: (r) => r.riskLevel === 'KelainanMulut' },
-  { label: 'Kanker Mulut', labelEn: 'Cancer', match: (r) => r.riskLevel === 'KankerMulut' },
+  { label: 'Semua', labelEn: 'Semua', match: () => true },
+  { label: 'Mulut Normal', labelEn: 'Mulut Normal', match: (r) => r.riskLevel === 'MulutNormal' },
+  { label: 'Sariawan', labelEn: 'Sariawan', match: (r) => r.riskLevel === 'Sariawan' },
+  { label: 'Kelainan Mulut', labelEn: 'Kelainan Mulut', match: (r) => r.riskLevel === 'KelainanMulut' },
+  { label: 'Kanker Mulut', labelEn: 'Kanker Mulut', match: (r) => r.riskLevel === 'KankerMulut' },
 ];
 
 function formatDate(iso: string): { date: string; time: string } {
@@ -36,17 +36,17 @@ function formatDate(iso: string): { date: string; time: string } {
 }
 
 const SHORT_NOTE: Record<RiskLevel, [string, string]> = {
-  MulutNormal: ['Kondisi mulut terlihat sehat.', 'Oral condition looks healthy.'],
-  Sariawan: ['Umumnya jinak dan sembuh sendiri.', 'Usually benign and self-healing.'],
-  KelainanMulut: ['Disarankan periksa ke dokter gigi.', 'Consult a dentist.'],
-  KankerMulut: ['Segera konsultasi ke spesialis.', 'Consult a specialist urgently.'],
+  MulutNormal: ['Kondisi mulut terlihat sehat.', 'Kondisi mulut terlihat sehat.'],
+  Sariawan: ['Umumnya jinak dan sembuh sendiri.', 'Umumnya jinak dan sembuh sendiri.'],
+  KelainanMulut: ['Disarankan periksa ke dokter gigi.', 'Disarankan periksa ke dokter gigi.'],
+  KankerMulut: ['Segera konsultasi ke spesialis.', 'Segera konsultasi ke spesialis.'],
 };
 
 const RISK_TITLE: Record<RiskLevel, [string, string]> = {
-  MulutNormal: ['Mulut Normal', 'Normal'],
-  Sariawan: ['Diduga Sariawan', 'Suspected Canker Sore'],
-  KelainanMulut: ['Diduga Kelainan Mulut', 'Suspected Abnormality'],
-  KankerMulut: ['Diduga Kanker Mulut', 'Suspected Cancer'],
+  MulutNormal: ['Mulut Normal', 'Mulut Normal'],
+  Sariawan: ['Diduga Sariawan', 'Diduga Sariawan'],
+  KelainanMulut: ['Diduga Kelainan Mulut', 'Diduga Kelainan Mulut'],
+  KankerMulut: ['Diduga Kanker Mulut', 'Diduga Kanker Mulut'],
 };
 
 export function Riwayat() {
@@ -168,7 +168,7 @@ export function Riwayat() {
                     )}
                   </td>
                   <td className="py-md">
-                    <RiskBadge level={r.riskLevel} variant="en" />
+                    <RiskBadge level={r.riskLevel} variant="id" />
                   </td>
                   <td className="py-md">
                     <Thumb scan={r} />

@@ -68,15 +68,6 @@ export function Profil() {
       .finally(() => setLoading(false));
   }, []);
 
-  const setNotif = (key: keyof ProfileType['notifications']) => {
-    const next = {
-      ...profile,
-      notifications: { ...profile.notifications, [key]: !profile.notifications[key] },
-    };
-    setProfile(next);
-    saveProfile(next).catch(() => undefined);
-  };
-
   const handleSaveProfile = async (updated: ProfileType) => {
     setProfile(updated);
     await saveProfile(updated);
@@ -135,9 +126,9 @@ export function Profil() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         {/* Data pribadi */}
         <SettingsCard icon={User} title={t('Data Pribadi', 'Personal Data')}>
-          <Row label={t('Nama Lengkap', 'Full Name')} value={profile.fullName} />
-          <Row label={t('Tanggal Lahir', 'Date of Birth')} value={formatBirthDate(profile.birthDate, lang)} />
-          <Row label={t('Nomor Telepon', 'Phone Number')} value={profile.phone || '—'} />
+          <Row label={t('Nama Lengkap', 'Full Name')} value={profile.fullName} onClick={() => setEditing(true)} />
+          <Row label={t('Tanggal Lahir', 'Date of Birth')} value={formatBirthDate(profile.birthDate, lang)} onClick={() => setEditing(true)} />
+          <Row label={t('Nomor Telepon', 'Phone Number')} value={profile.phone || '—'} onClick={() => setEditing(true)} />
         </SettingsCard>
 
         {/* Keamanan */}
@@ -146,17 +137,23 @@ export function Profil() {
             icon={Lock}
             title={t('Ubah Kata Sandi', 'Change Password')}
             subtitle={t('Terakhir diubah 2 bulan lalu', 'Last changed 2 months ago')}
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
           <ToggleRow
             icon={Fingerprint}
             title={t('Biometrik Login', 'Biometric Login')}
             subtitle={t('Aktif (Face ID / Sidik Jari)', 'Active (Face ID / Fingerprint)')}
             on
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
           <IconRow
             icon={Shield}
             title={t('Otentikasi Dua Faktor', 'Two-Factor Authentication')}
             subtitle={t('Tingkatkan keamanan akun Anda', 'Strengthen your account security')}
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
         </SettingsCard>
 
@@ -165,17 +162,20 @@ export function Profil() {
           <ToggleRow
             title={t('Notifikasi Pemeriksaan', 'Scan Notifications')}
             on={profile.notifications.exams}
-            onToggle={() => setNotif('exams')}
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
           <ToggleRow
             title={t('Edukasi Kesehatan', 'Health Education')}
             on={profile.notifications.education}
-            onToggle={() => setNotif('education')}
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
           <ToggleRow
             title={t('Pembaruan Versi', 'Version Updates')}
             on={profile.notifications.updates}
-            onToggle={() => setNotif('updates')}
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
           />
         </SettingsCard>
 
@@ -233,7 +233,13 @@ export function Profil() {
             </div>
           </div>
           <IconRow icon={HelpCircle} title={t('Pusat Bantuan', 'Help Center')} onClick={() => navigate('/bantuan')} />
-          <IconRow icon={Trash2} title={t('Hapus Akun', 'Delete Account')} danger />
+          <IconRow
+            icon={Trash2}
+            title={t('Hapus Akun', 'Delete Account')}
+            danger
+            disabled
+            badge={t('Belum Tersedia', 'Not Available')}
+          />
         </SettingsCard>
       </div>
 
@@ -450,15 +456,18 @@ function SettingsCard({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, onClick }: { label: string; value: string; onClick?: () => void }) {
   return (
-    <div className="flex items-center justify-between border-b border-outline-variant last:border-0 py-sm">
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between border-b border-outline-variant last:border-0 py-sm text-left hover:bg-surface-container-low transition-colors px-xs rounded-lg group cursor-pointer"
+    >
       <div>
         <p className="text-caption text-on-surface-variant">{label}</p>
-        <p className="text-body-md text-on-surface">{value}</p>
+        <p className="text-body-md font-semibold text-on-surface">{value}</p>
       </div>
-      <ChevronRight size={18} className="text-on-surface-variant" />
-    </div>
+      <ChevronRight size={18} className="text-on-surface-variant group-hover:text-primary transition-colors shrink-0" />
+    </button>
   );
 }
 
@@ -467,16 +476,24 @@ function IconRow({
   title,
   subtitle,
   danger,
+  disabled,
+  badge,
   onClick,
 }: {
   icon: typeof User;
   title: string;
   subtitle?: string;
   danger?: boolean;
+  disabled?: boolean;
+  badge?: string;
   onClick?: () => void;
 }) {
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-sm py-sm">
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`w-full flex items-center gap-sm py-sm ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+    >
       <span
         className={`w-9 h-9 rounded-lg flex items-center justify-center ${
           danger ? 'bg-error-container text-error' : 'bg-surface-container text-primary'
@@ -490,7 +507,12 @@ function IconRow({
         </span>
         {subtitle && <span className="block text-caption text-on-surface-variant">{subtitle}</span>}
       </span>
-      <ChevronRight size={18} className="text-on-surface-variant" />
+      {badge && (
+        <span className="text-label-sm font-semibold bg-surface-container-high text-on-surface-variant px-sm py-0.5 rounded-full border border-outline-variant shrink-0">
+          {badge}
+        </span>
+      )}
+      <ChevronRight size={18} className="text-on-surface-variant shrink-0" />
     </button>
   );
 }
@@ -500,16 +522,20 @@ function ToggleRow({
   title,
   subtitle,
   on,
+  disabled,
+  badge,
   onToggle,
 }: {
   icon?: typeof User;
   title: string;
   subtitle?: string;
   on: boolean;
+  disabled?: boolean;
+  badge?: string;
   onToggle?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-sm py-sm">
+    <div className={`flex items-center gap-sm py-sm ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
       {Icon && (
         <span className="w-9 h-9 rounded-lg bg-surface-container text-primary flex items-center justify-center">
           <Icon size={18} />
@@ -519,9 +545,17 @@ function ToggleRow({
         <span className="block text-body-md font-semibold text-on-surface">{title}</span>
         {subtitle && <span className="block text-caption text-on-surface-variant">{subtitle}</span>}
       </span>
+      {badge && (
+        <span className="text-label-sm font-semibold bg-surface-container-high text-on-surface-variant px-sm py-0.5 rounded-full border border-outline-variant shrink-0">
+          {badge}
+        </span>
+      )}
       <button
-        onClick={onToggle}
-        className={`w-11 h-6 rounded-full transition-colors relative ${on ? 'bg-primary' : 'bg-outline-variant'}`}
+        disabled={disabled}
+        onClick={disabled ? undefined : onToggle}
+        className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${
+          on ? 'bg-primary' : 'bg-outline-variant'
+        }`}
       >
         <span
           className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}

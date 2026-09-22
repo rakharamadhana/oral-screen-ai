@@ -36,6 +36,10 @@ export interface RiskResult {
   probability: number;
   /** Hex color for badges / left-border status cards. */
   color: string;
+  /** Exact uppercase suspect category name. */
+  suspectCategory: string;
+  /** English suspect category label. */
+  suspectCategoryEn: string;
   /** Short Indonesian status label. */
   label: string;
   /** English status label. */
@@ -49,6 +53,8 @@ export interface RiskResult {
 const COPY: Record<RiskLevel, Omit<RiskResult, 'level' | 'probability'>> = {
   MulutNormal: {
     color: '#006b2d',
+    suspectCategory: 'SUSPECT MULUT NORMAL',
+    suspectCategoryEn: 'SUSPECT NORMAL MOUTH',
     label: 'Mulut Normal',
     labelEn: 'Normal',
     advice:
@@ -58,6 +64,8 @@ const COPY: Record<RiskLevel, Omit<RiskResult, 'level' | 'probability'>> = {
   },
   Sariawan: {
     color: '#f9a825',
+    suspectCategory: 'SUSPECT SARIAWAN',
+    suspectCategoryEn: 'SUSPECT CANKER SORE',
     label: 'Diduga Sariawan',
     labelEn: 'Suspected Canker Sore',
     advice:
@@ -67,6 +75,8 @@ const COPY: Record<RiskLevel, Omit<RiskResult, 'level' | 'probability'>> = {
   },
   KelainanMulut: {
     color: '#ef6c00',
+    suspectCategory: 'SUSPECT KELAINAN MULUT',
+    suspectCategoryEn: 'SUSPECT ORAL ABNORMALITY',
     label: 'Diduga Kelainan Mulut',
     labelEn: 'Suspected Oral Abnormality',
     advice:
@@ -76,6 +86,8 @@ const COPY: Record<RiskLevel, Omit<RiskResult, 'level' | 'probability'>> = {
   },
   KankerMulut: {
     color: '#ba1a1a',
+    suspectCategory: 'SUSPECT KANKER MULUT',
+    suspectCategoryEn: 'SUSPECT ORAL CANCER',
     label: 'Diduga Kanker Mulut',
     labelEn: 'Suspected Oral Cancer',
     advice:
@@ -94,6 +106,47 @@ export function riskResultForLevel(level: RiskLevel, probability = 0): RiskResul
 export function classifyFromOutput(output: InferenceOutput): RiskResult {
   const level = classNameToRiskLevel(output.predictedClassName);
   return riskResultForLevel(level, output.probs[output.predictedIndex]);
+}
+
+export interface ReferralStatus {
+  needsReferral: boolean;
+  color: string;
+  label: string;
+  labelEn: string;
+  advice: string;
+  adviceEn: string;
+}
+
+/**
+ * Collapses the 4-class result into the binary referral message shown on the
+ * scan-result screen: KelainanMulut/KankerMulut never surface their specific
+ * class name to the user there, just that a dentist visit is advised.
+ * Sariawan/MulutNormal stay two of the four classes internally (history,
+ * analytics, DB) but read the same "no referral needed" on that screen.
+ */
+export function referralStatus(level: RiskLevel): ReferralStatus {
+  const needsReferral = level === 'KelainanMulut' || level === 'KankerMulut';
+  return needsReferral
+    ? {
+        needsReferral: true,
+        color: '#ba1a1a',
+        label: 'Perlu Rujukan',
+        labelEn: 'Referral Needed',
+        advice:
+          'Foto Anda menunjukkan pola yang sebaiknya diperiksa langsung oleh dokter gigi untuk pemeriksaan lebih lanjut. Hasil ini merupakan deteksi dini, bukan diagnosis akhir.',
+        adviceEn:
+          'Your photo shows a pattern that should be examined directly by a dentist for further evaluation. This result is early detection, not a final diagnosis.',
+      }
+    : {
+        needsReferral: false,
+        color: '#006b2d',
+        label: 'Tidak Perlu Rujukan',
+        labelEn: 'No Referral Needed',
+        advice:
+          'Tidak ditemukan ciri yang memerlukan rujukan segera pada citra Anda. Tetap lakukan pemeriksaan rutin, dan periksakan bila ada nyeri, pendarahan, atau luka yang tak sembuh dalam 2 minggu.',
+        adviceEn:
+          'No features requiring immediate referral were found in your image. Keep up routine checks, and see a professional if you have pain, bleeding, or a sore that does not heal within 2 weeks.',
+      };
 }
 
 /** Style helper for referral chips/badges used across Riwayat + Beranda. */

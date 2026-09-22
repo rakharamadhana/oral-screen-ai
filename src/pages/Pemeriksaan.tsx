@@ -6,6 +6,7 @@ import {
   Video,
   Info,
   CheckCircle2,
+  AlertTriangle,
   XCircle,
   Lightbulb,
   Loader2,
@@ -17,17 +18,15 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Stepper, StepperMobile } from '../components/ui/Stepper';
-import { RiskIcon } from '../components/ui/RiskBadge';
 import { LiveInference } from '../components/scan/LiveInference';
 import { CameraCapture } from '../components/scan/CameraCapture';
 import { useOnnxModel, type ModelProgress } from '../hooks/useOnnxModel';
 import { renderCAMToCanvas, loadImage, type InferenceOutput } from '../lib/inference';
-import { classifyFromOutput, type RiskResult } from '../lib/risk';
+import { classifyFromOutput, referralStatus, type RiskResult } from '../lib/risk';
 import { addScan, generateRefCode, getProfile } from '../lib/repository';
 import { useLang } from '../lib/i18n';
 import type { Profile, ScanRecord } from '../lib/types';
 import { EMPTY_PROFILE } from '../lib/mockData';
-import { getAssetUrl } from '../lib/supabase';
 
 
 // Identity (Data Diri) comes from the profile, risk factors are captured on the
@@ -483,7 +482,7 @@ function ContohHasilFoto() {
         {['ok-01.jpeg', 'ok-02.jpeg', 'ok-03.jpeg'].map((f) => (
           <img
             key={f}
-            src={getAssetUrl(`/assets/samples/${f}`)}
+            src={`/assets/samples/${f}`}
             alt={t('Contoh foto yang benar', 'Example of a good photo')}
             className="h-20 w-full object-cover rounded-lg border border-tertiary/40"
           />
@@ -499,7 +498,7 @@ function ContohHasilFoto() {
         {['bad-01.jpeg', 'bad-02.png'].map((f) => (
           <img
             key={f}
-            src={getAssetUrl(`/assets/samples/${f}`)}
+            src={`/assets/samples/${f}`}
             alt={t('Contoh foto yang salah', 'Example of a bad photo')}
             className="h-24 w-full object-cover rounded-lg border border-error/40"
           />
@@ -769,31 +768,53 @@ function SelesaiStep({
   onHistory: () => void;
 }) {
   const { t, lang } = useLang();
-  const { risk, photo, output } = result;
+  const { photo, output } = result;
+  const referral = referralStatus(result.risk.level);
+  const ReferralIcon = referral.needsReferral ? AlertTriangle : CheckCircle2;
+  const confidencePct = (result.risk.probability * 100).toFixed(1);
+
   return (
     <div className="space-y-md">
-      <Card className="p-lg" accent={risk.color}>
-        <div className="flex items-center gap-md mb-md">
-          <RiskIcon level={risk.level} size={32} />
-          <div>
-            <p className="text-label-md uppercase font-bold" style={{ color: risk.color }}>
-              {t('Hasil Analisis', 'Analysis Result')}
-            </p>
-            <h3 className="text-display-lg-mobile font-bold text-on-surface">
-              {lang === 'en' ? risk.labelEn : risk.label}
-            </h3>
+      <Card className="p-lg" accent={result.risk.color}>
+        {/* Category & Confidence Rate Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-md border-b border-outline-variant/60 pb-md">
+          <div className="flex items-start gap-md">
+            <ReferralIcon size={36} className="mt-1 shrink-0" style={{ color: result.risk.color }} />
+            <div>
+              <p className="text-label-md uppercase font-bold tracking-wider" style={{ color: result.risk.color }}>
+                {t('Hasil Analisis AI', 'AI Analysis Result')}
+              </p>
+              <h3 className="text-headline-lg font-extrabold text-on-surface tracking-tight mt-0.5">
+                {lang === 'en' ? result.risk.suspectCategoryEn : result.risk.suspectCategory}
+              </h3>
+            </div>
+          </div>
+
+          {/* AI Confidence Rate Box */}
+          <div className="bg-surface-container-low border border-outline-variant/80 rounded-xl p-md flex flex-col items-start md:items-end justify-center shrink-0">
+            <span className="text-label-sm uppercase font-bold text-on-surface-variant">
+              {t('Tingkat Keyakinan AI', 'AI Confidence Rate')}
+            </span>
+            <div className="flex items-baseline gap-xs mt-0.5">
+              <span className="text-display-md font-extrabold text-primary tabular-nums">
+                {confidencePct}%
+              </span>
+            </div>
+            <div className="w-full min-w-[140px] max-w-[180px] h-2 rounded-full bg-surface-container mt-xs overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, result.risk.probability * 100))}%` }}
+              />
+            </div>
           </div>
         </div>
 
         {/* What to do next */}
-        <div
-          className="rounded-xl p-md"
-          style={{ backgroundColor: `${risk.color}14`, borderLeft: `4px solid ${risk.color}` }}
-        >
-          <p className="text-label-md uppercase font-bold mb-xs" style={{ color: risk.color }}>
+        <div className="pt-xs">
+          <p className="text-label-md uppercase font-bold mb-xs" style={{ color: referral.color }}>
             {t('Langkah Selanjutnya', 'Next Steps')}
           </p>
-          <p className="text-body-md text-on-surface">{lang === 'en' ? risk.adviceEn : risk.advice}</p>
+          <p className="text-body-md text-on-surface">{lang === 'en' ? referral.adviceEn : referral.advice}</p>
         </div>
       </Card>
 
